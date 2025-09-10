@@ -67,31 +67,14 @@ export function VoiceChat() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-secondary/20">
-      <Card className="w-full max-w-2xl shadow-2xl">
+    <div 
+      className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage: "url('/tate_background.jpeg')"
+      }}
+    >
+      <Card className="w-full max-w-2xl shadow-2xl backdrop-blur-[2px] bg-card/60">
         <CardHeader className="text-center pb-8">
-          <div className="flex justify-center mb-4">
-            <div className="relative">
-              <div
-                className={cn(
-                  "w-24 h-24 rounded-full flex items-center justify-center transition-all duration-500",
-                  isConnected
-                    ? "bg-gradient-to-br from-primary to-primary/60 shadow-lg shadow-primary/25"
-                    : "bg-secondary",
-                )}
-              >
-                <Radio
-                  className={cn(
-                    "h-12 w-12 transition-all",
-                    isConnected ? "text-primary-foreground" : "text-muted-foreground",
-                  )}
-                />
-              </div>
-              {isConnected && (
-                <div className="absolute -inset-1 rounded-full bg-primary/20 animate-pulse" />
-              )}
-            </div>
-          </div>
 
           <CardTitle className="text-3xl font-bold">Andrew Tate</CardTitle>
 
@@ -127,7 +110,7 @@ export function VoiceChat() {
 
         <CardContent className="space-y-6 pb-8">
           {/* Voice Visualization Area */}
-          <div className="relative h-32 bg-secondary/30 rounded-xl overflow-hidden">
+          <div className="relative h-32 bg-secondary/10 rounded-xl overflow-hidden">
             <div className="absolute inset-0 flex items-center justify-center">
               {isConnected && isListening && !isProcessing && !isSpeaking && (
                 <div className="flex items-center gap-1">
@@ -186,7 +169,7 @@ export function VoiceChat() {
 
           {/* Current Transcript/Response Display */}
           {(currentTranscript || agentResponse) && (
-            <div className="p-4 bg-secondary/20 rounded-lg min-h-[80px]">
+            <div className="p-4 bg-secondary/10 rounded-lg min-h-[80px]">
               {currentTranscript && (
                 <div className="space-y-1">
                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -210,7 +193,7 @@ export function VoiceChat() {
 
           {/* Error Display */}
           {error && (
-            <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+            <div className="p-3 bg-destructive/5 border border-destructive/10 rounded-lg">
               <div className="flex items-start gap-2">
                 <AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
                 <div className="text-sm text-destructive whitespace-pre-wrap">{error}</div>
