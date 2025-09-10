@@ -15,7 +15,6 @@ import {
   CheckCircle,
   Radio,
   Activity,
-  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +28,7 @@ export function VoiceChat() {
     isConnected,
     isListening: isRecording,
     isProcessing,
+    isSpeaking,
     connect,
     disconnect,
   } = useElevenLabsOfficial({
@@ -93,12 +93,7 @@ export function VoiceChat() {
             </div>
           </div>
 
-          <CardTitle className="text-3xl font-bold">Voice Assistant</CardTitle>
-          <CardDescription className="text-lg mt-2">
-            {isConnected
-              ? "Hands-free conversation active - just speak naturally"
-              : "Connect to start hands-free conversation"}
-          </CardDescription>
+          <CardTitle className="text-3xl font-bold">Andrew Tate</CardTitle>
 
           {/* Connection Status Badge */}
           <div className="flex justify-center mt-4 gap-2">
@@ -115,7 +110,13 @@ export function VoiceChat() {
                 </>
               )}
             </Badge>
-            {isListening && (
+            {isConnected && isSpeaking && (
+              <Badge variant="destructive" className="px-4 py-1 animate-pulse">
+                <Volume2 className="h-3 w-3 mr-1" />
+                Speaking
+              </Badge>
+            )}
+            {isConnected && !isSpeaking && isListening && (
               <Badge variant="outline" className="px-4 py-1 animate-pulse">
                 <Mic className="h-3 w-3 mr-1" />
                 Listening
@@ -128,7 +129,7 @@ export function VoiceChat() {
           {/* Voice Visualization Area */}
           <div className="relative h-32 bg-secondary/30 rounded-xl overflow-hidden">
             <div className="absolute inset-0 flex items-center justify-center">
-              {isListening && !isProcessing && (
+              {isConnected && isListening && !isProcessing && !isSpeaking && (
                 <div className="flex items-center gap-1">
                   {[...Array(7)].map((_, i) => (
                     <div
@@ -138,6 +139,22 @@ export function VoiceChat() {
                         height: `${Math.random() * 60 + 20}px`,
                         animationDelay: `${i * 0.1}s`,
                         animationDuration: "0.8s",
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {isConnected && isSpeaking && !isProcessing && (
+                <div className="flex items-center gap-1">
+                  {[...Array(7)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="w-1 bg-destructive rounded-full animate-pulse"
+                      style={{
+                        height: `${Math.random() * 60 + 20}px`,
+                        animationDelay: `${i * 0.1}s`,
+                        animationDuration: "0.6s",
                       }}
                     />
                   ))}
@@ -154,11 +171,11 @@ export function VoiceChat() {
               {isProcessing && (
                 <div className="flex items-center gap-2">
                   <Activity className="h-5 w-5 text-primary animate-pulse" />
-                  <span className="text-sm font-medium">AI is responding...</span>
+                  <span className="text-sm font-medium">AI is processing...</span>
                 </div>
               )}
 
-              {isConnected && !isListening && !isProcessing && (
+              {isConnected && !isListening && !isProcessing && !isSpeaking && (
                 <div className="flex items-center gap-2">
                   <Loader2 className="h-5 w-5 text-primary animate-spin" />
                   <span className="text-sm font-medium">Initializing microphone...</span>
@@ -201,52 +218,36 @@ export function VoiceChat() {
             </div>
           )}
 
-          {/* Control Buttons */}
-          <div className="flex flex-col items-center gap-4">
-            {/* Connect/Disconnect Button */}
-            <Button
-              onClick={isConnected ? handleDisconnect : handleConnect}
-              variant={isConnected ? "outline" : "default"}
-              size="lg"
-              className="min-w-[200px]"
-            >
-              {isConnected ? (
-                <>
-                  <PhoneOff className="h-5 w-5 mr-2" />
-                  End Conversation
-                </>
-              ) : (
-                <>
-                  <Phone className="h-5 w-5 mr-2" />
-                  Start Conversation
-                </>
-              )}
-            </Button>
+          {/* Control Buttons - Connected State */}
+          {isConnected && (
+            <div className="flex flex-col items-center gap-4">
+              {/* Disconnect Button */}
+              <Button
+                onClick={handleDisconnect}
+                variant="outline"
+                size="lg"
+                className="min-w-[200px]"
+              >
+                <PhoneOff className="h-5 w-5 mr-2" />
+                End Conversation
+              </Button>
 
-            {/* Hands-free indicator */}
-            {isListening && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
-                <span>Hands-free mode active - speak naturally</span>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          {/* Features */}
+
+          {/* Call Button */}
           {!isConnected && (
-            <div className="grid grid-cols-3 gap-3 pt-4 border-t">
-              <div className="text-center">
-                <Mic className="h-5 w-5 text-primary mx-auto mb-1" />
-                <p className="text-xs text-muted-foreground">Hands-free</p>
-              </div>
-              <div className="text-center">
-                <Volume2 className="h-5 w-5 text-primary mx-auto mb-1" />
-                <p className="text-xs text-muted-foreground">Natural Voice</p>
-              </div>
-              <div className="text-center">
-                <Zap className="h-5 w-5 text-primary mx-auto mb-1" />
-                <p className="text-xs text-muted-foreground">Real-time</p>
-              </div>
+            <div className="flex flex-col items-center">
+              <Button
+                onClick={handleConnect}
+                variant="default"
+                size="lg"
+                className="min-w-[200px]"
+              >
+                <Phone className="h-5 w-5 mr-2" />
+                Call Tate
+              </Button>
             </div>
           )}
         </CardContent>
