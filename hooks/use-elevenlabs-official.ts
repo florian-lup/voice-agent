@@ -85,18 +85,6 @@ export const useElevenLabsAPI = (options?: UseElevenLabsOptions) => {
     onMessage: (message: any) => {
       console.log("📨 Message received:", message);
 
-      // Handle user transcripts
-      if (message.type === "user_transcript" && message.user_transcript) {
-        const userMessage: Message = {
-          id: Date.now().toString(),
-          role: "user",
-          content: message.user_transcript,
-          timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, userMessage]);
-        options?.onMessage?.(userMessage);
-      }
-
       // Handle agent responses
       if (message.type === "agent_response" && message.agent_response) {
         const agentMessage: Message = {

@@ -9,7 +9,6 @@ import { Mic, Phone, PhoneOff, Volume2, AlertCircle, CheckCircle, Loader2 } from
 
 export function VoiceChat() {
   const [error, setError] = useState<string | null>(null);
-  const [currentTranscript, setCurrentTranscript] = useState<string>("");
   const [agentResponse, setAgentResponse] = useState<string>("");
   const [isListening, setIsListening] = useState(false);
   const [isUserSpeaking, setIsUserSpeaking] = useState(false);
@@ -30,14 +29,9 @@ export function VoiceChat() {
       setTimeout(() => setError(null), 5000);
     },
     onMessage: (message) => {
-      // Update current transcript or response based on role
-      if (message.role === "user") {
-        setCurrentTranscript(message.content);
-        setAgentResponse(""); // Clear agent response when user speaks
-        setIsUserSpeaking(false); // User finished speaking
-      } else if (message.role === "assistant") {
+      // Update agent response based on role
+      if (message.role === "assistant") {
         setAgentResponse(message.content);
-        setCurrentTranscript(""); // Clear user transcript when agent responds
         setIsUserSpeaking(false); // Ensure user speaking state is cleared
       }
     },
@@ -92,7 +86,6 @@ export function VoiceChat() {
 
   const handleDisconnect = () => {
     disconnect();
-    setCurrentTranscript("");
     setAgentResponse("");
     setIsListening(false);
   };
@@ -219,27 +212,16 @@ export function VoiceChat() {
             </div>
           </div>
 
-          {/* Current Transcript/Response Display */}
-          {(currentTranscript || agentResponse) && (
+          {/* Current Response Display */}
+          {agentResponse && (
             <div className="p-4 bg-secondary/10 rounded-lg min-h-[80px]">
-              {currentTranscript && (
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    You said:
-                  </p>
-                  <p className="text-lg">{currentTranscript}</p>
-                </div>
-              )}
-
-              {agentResponse && (
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-primary uppercase tracking-wider flex items-center gap-1">
-                    <Volume2 className="h-3 w-3" />
-                    AI Response:
-                  </p>
-                  <p className="text-lg">{agentResponse}</p>
-                </div>
-              )}
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-primary uppercase tracking-wider flex items-center gap-1">
+                  <Volume2 className="h-3 w-3" />
+                  AI Response:
+                </p>
+                <p className="text-lg">{agentResponse}</p>
+              </div>
             </div>
           )}
 
