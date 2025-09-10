@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useElevenLabsAPI } from "@/hooks/use-elevenlabs-official";
-import { Mic, Phone, PhoneOff, Volume2, AlertCircle, CheckCircle } from "lucide-react";
+import { Mic, Phone, PhoneOff, Volume2, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 
 export function VoiceChat() {
   const [error, setError] = useState<string | null>(null);
@@ -13,6 +13,7 @@ export function VoiceChat() {
   const [agentResponse, setAgentResponse] = useState<string>("");
   const [isListening, setIsListening] = useState(false);
   const [isUserSpeaking, setIsUserSpeaking] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
 
   const {
     isConnected,
@@ -53,6 +54,10 @@ export function VoiceChat() {
   // Update listening state when connection changes
   useEffect(() => {
     setIsListening(isConnected && isRecording);
+    // Clear connecting state when connected
+    if (isConnected) {
+      setIsConnecting(false);
+    }
   }, [isConnected, isRecording]);
 
   // Monitor input volume to detect when user is actively speaking
@@ -76,7 +81,13 @@ export function VoiceChat() {
 
   const handleConnect = async () => {
     setError(null);
-    await connect();
+    setIsConnecting(true);
+    try {
+      await connect();
+    } catch (err) {
+      setIsConnecting(false);
+      setError(err instanceof Error ? err.message : "Failed to connect");
+    }
   };
 
   const handleDisconnect = () => {
@@ -188,7 +199,7 @@ export function VoiceChat() {
               </div>
 
               {/* Overlay text for specific states */}
-              {!isConnected && (
+              {!isConnected && !isConnecting && (
                 <div className="absolute bottom-2 text-center">
                   <p className="text-xs text-muted-foreground">Ready to call Tate</p>
                 </div>
@@ -261,9 +272,24 @@ export function VoiceChat() {
           {/* Call Button */}
           {!isConnected && (
             <div className="flex flex-col items-center">
-              <Button onClick={handleConnect} variant="default" size="lg" className="min-w-[200px]">
-                <Phone className="h-5 w-5 mr-2" />
-                Start Conversation
+              <Button 
+                onClick={handleConnect} 
+                variant="default" 
+                size="lg" 
+                className="min-w-[200px]"
+                disabled={isConnecting}
+              >
+                {isConnecting ? (
+                  <>
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    Calling...
+                  </>
+                ) : (
+                  <>
+                    <Phone className="h-5 w-5 mr-2" />
+                    Start Conversation
+                  </>
+                )}
               </Button>
             </div>
           )}
