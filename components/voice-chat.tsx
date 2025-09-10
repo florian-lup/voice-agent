@@ -12,6 +12,7 @@ export function VoiceChat() {
   const [currentTranscript, setCurrentTranscript] = useState<string>("");
   const [agentResponse, setAgentResponse] = useState<string>("");
   const [isListening, setIsListening] = useState(false);
+  const [isUserSpeaking, setIsUserSpeaking] = useState(false);
 
   const {
     isConnected,
@@ -20,6 +21,7 @@ export function VoiceChat() {
     isSpeaking,
     connect,
     disconnect,
+    getInputVolume,
   } = useElevenLabsAPI({
     autoReconnect: true, // Enable auto-reconnect on unexpected disconnection
     onError: (error) => {
@@ -31,9 +33,11 @@ export function VoiceChat() {
       if (message.role === "user") {
         setCurrentTranscript(message.content);
         setAgentResponse(""); // Clear agent response when user speaks
+        setIsUserSpeaking(false); // User finished speaking
       } else if (message.role === "assistant") {
         setAgentResponse(message.content);
         setCurrentTranscript(""); // Clear user transcript when agent responds
+        setIsUserSpeaking(false); // Ensure user speaking state is cleared
       }
     },
   });
@@ -50,6 +54,25 @@ export function VoiceChat() {
   useEffect(() => {
     setIsListening(isConnected && isRecording);
   }, [isConnected, isRecording]);
+
+  // Monitor input volume to detect when user is actively speaking
+  useEffect(() => {
+    if (!isConnected || !isRecording || isSpeaking || isProcessing) {
+      setIsUserSpeaking(false);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      if (getInputVolume) {
+        const volume = getInputVolume();
+        // Threshold for detecting speech (adjust as needed)
+        const speechThreshold = 0.01;
+        setIsUserSpeaking(volume > speechThreshold);
+      }
+    }, 100); // Check every 100ms
+
+    return () => clearInterval(interval);
+  }, [isConnected, isRecording, isSpeaking, isProcessing, getInputVolume]);
 
   const handleConnect = async () => {
     setError(null);
@@ -111,15 +134,21 @@ export function VoiceChat() {
                   let animationDuration = "2s";
                   let barHeight = 40; // Default steady height for idle
 
-                  if (isConnected && isListening && !isProcessing && !isSpeaking) {
-                    // Listening state - blue animated bars
-                    barColor = "bg-primary";
+                  if (isConnected && isListening && !isProcessing && !isSpeaking && isUserSpeaking) {
+                    // User actively speaking - blue animated bars
+                    barColor = "bg-waveform-user";
                     animationClass = "animate-pulse";
                     animationDuration = "0.8s";
                     barHeight = Math.random() * 60 + 20;
+                  } else if (isConnected && isListening && !isProcessing && !isSpeaking && !isUserSpeaking) {
+                    // Just listening (waiting for user) - original primary color
+                    barColor = "bg-primary";
+                    animationClass = "animate-pulse";
+                    animationDuration = "1.2s";
+                    barHeight = 35 + Math.sin(i * 0.5) * 10; // Gentle wave pattern
                   } else if (isConnected && isSpeaking && !isProcessing) {
-                    // Speaking state - red animated bars
-                    barColor = "bg-destructive";
+                    // Speaking state - green animated bars (AI speaking)
+                    barColor = "bg-waveform-ai";
                     animationClass = "animate-pulse";
                     animationDuration = "0.6s";
                     barHeight = Math.random() * 60 + 20;
