@@ -56,13 +56,7 @@ export function VoiceChat() {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat"
-      style={{
-        backgroundImage:
-          "linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/tate_background.jpg')",
-      }}
-    >
+    <div className="min-h-screen flex items-center justify-center p-4 bg-tate-responsive">
       <Card className="w-full max-w-2xl shadow-2xl backdrop-blur-[2px] bg-card/60">
         <CardHeader className="text-center pb-8">
           <CardTitle className="text-3xl font-bold">Andrew Tate</CardTitle>
