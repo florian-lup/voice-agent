@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useConversation } from "@elevenlabs/react";
-import { elevenLabsConfig, validateConfig } from "@/lib/elevenlabs-config";
 
 export interface Message {
   id: string;
@@ -11,14 +10,18 @@ export interface Message {
   timestamp: Date;
 }
 
-interface UseElevenLabsOfficialOptions {
+interface UseElevenLabsOptions {
   onMessage?: (message: Message) => void;
   onError?: (error: Error) => void;
   onConnectionChange?: (connected: boolean) => void;
-  autoReconnect?: boolean; // Enable auto-reconnect on unexpected disconnection
+  autoReconnect?: boolean;
 }
 
-export const useElevenLabsOfficial = (options?: UseElevenLabsOfficialOptions) => {
+/**
+ * Hook that uses the API route to securely fetch ElevenLabs configuration
+ * This keeps API keys on the server side only
+ */
+export const useElevenLabsAPI = (options?: UseElevenLabsOptions) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -31,44 +34,25 @@ export const useElevenLabsOfficial = (options?: UseElevenLabsOfficialOptions) =>
   // Use the official ElevenLabs React hook
   const conversation = useConversation({
     onConnect: () => {
-      console.log("✅ Connected to ElevenLabs via official SDK");
+      console.log("✅ Connected to ElevenLabs");
       setIsConnected(true);
-      setIsListening(true); // Auto-start listening for hands-free mode
+      setIsListening(true);
       options?.onConnectionChange?.(true);
 
-      // Start keep-alive mechanism to prevent idle timeout
-      // Send user activity signal every 30 seconds
+      // Start keep-alive mechanism
       if (keepAliveIntervalRef.current) {
         clearInterval(keepAliveIntervalRef.current);
       }
       keepAliveIntervalRef.current = setInterval(() => {
         if (conversation.status === "connected") {
           console.log("🔄 Sending keep-alive signal");
-          conversation.sendUserActivity(); // Signal that user is still present
+          conversation.sendUserActivity();
         }
-      }, 30000); // Every 30 seconds
+      }, 30000);
     },
     onDisconnect: (disconnectionDetails?: any) => {
       console.log("🔌 Disconnected from ElevenLabs");
 
-      // Log disconnection reason
-      if (disconnectionDetails) {
-        console.log("Disconnection details:", disconnectionDetails);
-        if (disconnectionDetails.code === 1000) {
-          console.log("Normal closure");
-        } else if (disconnectionDetails.code === 1001) {
-          console.log("Going away - page closed or navigated away");
-        } else if (disconnectionDetails.code === 1006) {
-          console.log("Abnormal closure - possible timeout or network issue");
-          console.log("💡 Tip: The connection may have timed out due to inactivity");
-        } else if (disconnectionDetails.code === 1008) {
-          console.log("Policy violation");
-        } else if (disconnectionDetails.code === 1011) {
-          console.log("Server error");
-        }
-      }
-
-      // Clear keep-alive interval
       if (keepAliveIntervalRef.current) {
         clearInterval(keepAliveIntervalRef.current);
         keepAliveIntervalRef.current = null;
@@ -83,8 +67,6 @@ export const useElevenLabsOfficial = (options?: UseElevenLabsOfficialOptions) =>
       if (options?.autoReconnect && disconnectionDetails?.code === 1006) {
         console.log("🔄 Attempting to reconnect in 3 seconds...");
         reconnectTimeoutRef.current = setTimeout(() => {
-          console.log("🔄 Reconnecting...");
-          // Reconnect with last used configuration
           if (lastConnectionRef.current.agentId) {
             conversation
               .startSession(lastConnectionRef.current as any)
@@ -105,7 +87,6 @@ export const useElevenLabsOfficial = (options?: UseElevenLabsOfficialOptions) =>
 
       // Handle user transcripts
       if (message.type === "user_transcript" && message.user_transcript) {
-        console.log("📝 User said:", message.user_transcript);
         const userMessage: Message = {
           id: Date.now().toString(),
           role: "user",
@@ -118,7 +99,6 @@ export const useElevenLabsOfficial = (options?: UseElevenLabsOfficialOptions) =>
 
       // Handle agent responses
       if (message.type === "agent_response" && message.agent_response) {
-        console.log("🤖 Agent said:", message.agent_response);
         const agentMessage: Message = {
           id: Date.now().toString(),
           role: "assistant",
@@ -131,8 +111,6 @@ export const useElevenLabsOfficial = (options?: UseElevenLabsOfficialOptions) =>
 
       // Handle text messages
       if (message.type === "text" && message.text) {
-        console.log("💬 Text message:", message.text);
-        // Determine role based on context or default to assistant
         const textMessage: Message = {
           id: Date.now().toString(),
           role: "assistant",
@@ -150,8 +128,6 @@ export const useElevenLabsOfficial = (options?: UseElevenLabsOfficialOptions) =>
     },
     onStatusChange: (status: any) => {
       console.log("📊 Status change:", status);
-
-      // Update processing state based on status
       if (status?.status === "thinking" || status?.status === "processing") {
         setIsProcessing(true);
       } else {
@@ -160,40 +136,39 @@ export const useElevenLabsOfficial = (options?: UseElevenLabsOfficialOptions) =>
     },
     onModeChange: (mode: any) => {
       console.log("🔄 Mode change:", mode);
-
-      // Update listening state based on mode
       if (mode?.mode === "listening" || mode?.mode === "speaking") {
         setIsListening(mode.mode === "listening");
       }
     },
-    onDebug: (debug: any) => {
-      console.log("🐛 Debug:", debug);
-    },
   });
 
-  // Connect to ElevenLabs
+  // Connect to ElevenLabs using API route for config
   const connect = useCallback(async () => {
-    if (!validateConfig()) {
-      const error = new Error(
-        "Invalid ElevenLabs configuration. Please set your Agent ID in lib/elevenlabs-config.ts",
-      );
-      console.error(error.message);
-      options?.onError?.(error);
-      return;
-    }
-
     try {
+      console.log("🔌 Fetching ElevenLabs configuration from API...");
+      
+      // Fetch configuration from API route (keeps API key secure)
+      const response = await fetch("/api/elevenlabs/config");
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to fetch configuration");
+      }
+
+      const config = await response.json();
+      
+      if (!config.agentId) {
+        throw new Error("Agent ID not configured");
+      }
+
       console.log("🔌 Connecting to ElevenLabs Agent...");
-      console.log("Agent ID:", elevenLabsConfig.agentId);
+      console.log("Agent ID:", config.agentId);
 
       // Store connection config for potential reconnection
-      lastConnectionRef.current = {
-        agentId: elevenLabsConfig.agentId,
-        ...(elevenLabsConfig.apiKey && { apiKey: elevenLabsConfig.apiKey }),
-      };
+      lastConnectionRef.current = config;
 
       // Start session with the agent
-      const sessionId = await conversation.startSession(lastConnectionRef.current as any); // The SDK types are complex, using any for now
+      const sessionId = await conversation.startSession(config);
 
       setConversationId(sessionId);
       console.log("💬 Conversation started with session ID:", sessionId);
@@ -210,7 +185,6 @@ export const useElevenLabsOfficial = (options?: UseElevenLabsOfficialOptions) =>
     try {
       console.log("👋 Ending conversation...");
 
-      // Clear intervals and timeouts before disconnecting
       if (keepAliveIntervalRef.current) {
         clearInterval(keepAliveIntervalRef.current);
         keepAliveIntervalRef.current = null;
@@ -238,7 +212,6 @@ export const useElevenLabsOfficial = (options?: UseElevenLabsOfficialOptions) =>
 
       console.log("📤 Sending text message:", text);
 
-      // Add user message to local state immediately
       const userMessage: Message = {
         id: Date.now().toString(),
         role: "user",
@@ -248,13 +221,12 @@ export const useElevenLabsOfficial = (options?: UseElevenLabsOfficialOptions) =>
       setMessages((prev) => [...prev, userMessage]);
       options?.onMessage?.(userMessage);
 
-      // Send via SDK
       conversation.sendUserMessage(text);
     },
     [conversation, isConnected, options],
   );
 
-  // Send contextual update (for context without showing in UI)
+  // Send contextual update
   const sendContextualUpdate = useCallback(
     (text: string) => {
       if (!isConnected) {
@@ -270,7 +242,6 @@ export const useElevenLabsOfficial = (options?: UseElevenLabsOfficialOptions) =>
 
   // Control microphone mute
   const toggleMute = useCallback(() => {
-    // The SDK handles muting internally based on the micMuted prop
     console.log("🎙️ Toggle mute - current state:", conversation.micMuted);
   }, [conversation.micMuted]);
 
@@ -297,7 +268,6 @@ export const useElevenLabsOfficial = (options?: UseElevenLabsOfficialOptions) =>
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      // Clear all intervals and timeouts on unmount
       if (keepAliveIntervalRef.current) {
         clearInterval(keepAliveIntervalRef.current);
       }
@@ -329,7 +299,7 @@ export const useElevenLabsOfficial = (options?: UseElevenLabsOfficialOptions) =>
     clearMessages,
     getStatus,
 
-    // Audio analysis (for visualizations)
+    // Audio analysis
     getInputVolume: conversation.getInputVolume,
     getOutputVolume: conversation.getOutputVolume,
     getInputByteFrequencyData: conversation.getInputByteFrequencyData,

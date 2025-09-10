@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useElevenLabsOfficial } from "@/hooks/use-elevenlabs-official";
+import { useElevenLabsAPI } from "@/hooks/use-elevenlabs-official";
 import { Mic, Phone, PhoneOff, Volume2, AlertCircle, CheckCircle } from "lucide-react";
 
 export function VoiceChat() {
@@ -20,7 +20,7 @@ export function VoiceChat() {
     isSpeaking,
     connect,
     disconnect,
-  } = useElevenLabsOfficial({
+  } = useElevenLabsAPI({
     autoReconnect: true, // Enable auto-reconnect on unexpected disconnection
     onError: (error) => {
       setError(error.message);
