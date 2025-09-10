@@ -38,6 +38,14 @@ export function VoiceChat() {
     },
   });
 
+  // Pre-warm the API route on component mount
+  useEffect(() => {
+    // Pre-fetch config to warm up the serverless function
+    fetch("/api/elevenlabs/config")
+      .then(() => console.log("✅ API route pre-warmed"))
+      .catch(() => console.log("Pre-warm failed, will retry on connect"));
+  }, []);
+
   // Update listening state when connection changes
   useEffect(() => {
     setIsListening(isConnected && isRecording);

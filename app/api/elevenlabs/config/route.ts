@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 
+// Use Edge Runtime for faster cold starts
+export const runtime = 'edge';
+
 /**
  * GET /api/elevenlabs/config
  * Returns the ElevenLabs configuration needed to start a session
