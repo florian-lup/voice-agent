@@ -56,7 +56,7 @@ export function VoiceChat() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-tate-responsive">
+    <div className="h-screen flex items-center justify-center p-4 bg-tate-responsive overflow-hidden">
       <Card className="w-full max-w-2xl shadow-2xl backdrop-blur-[2px] bg-card/60">
         <CardHeader className="text-center pb-8">
           <CardTitle className="text-3xl font-bold">Andrew Tate</CardTitle>
