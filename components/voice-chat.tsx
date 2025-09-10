@@ -70,7 +70,7 @@ export function VoiceChat() {
     <div 
       className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center bg-no-repeat"
       style={{
-        backgroundImage: "url('/tate_background.jpeg')"
+        backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('/tate_background.jpg')"
       }}
     >
       <Card className="w-full max-w-2xl shadow-2xl backdrop-blur-[2px] bg-card/60">
