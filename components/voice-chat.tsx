@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useElevenLabsAPI } from "@/hooks/use-elevenlabs-official";
 import { Mic, Phone, PhoneOff, Volume2, AlertCircle, CheckCircle, Loader2 } from "lucide-react";
+import { perfLogger } from "@/lib/performance-logger";
+import { useConnectionOptimizer, usePreWarmTriggers } from "@/hooks/use-connection-optimizer";
 
 export function VoiceChat() {
   const [error, setError] = useState<string | null>(null);
@@ -13,6 +15,13 @@ export function VoiceChat() {
   const [isListening, setIsListening] = useState(false);
   const [isUserSpeaking, setIsUserSpeaking] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const { preWarmConnection } = useConnectionOptimizer({
+    preWarmOnHover: true,
+    cacheConfig: true,
+    prefetchDNS: true,
+  });
 
   const {
     isConnected,
@@ -37,12 +46,61 @@ export function VoiceChat() {
     },
   });
 
+  // Use pre-warm triggers on the button
+  usePreWarmTriggers(buttonRef as React.RefObject<HTMLElement>, preWarmConnection);
+
   // Pre-warm the API route on component mount
   useEffect(() => {
-    // Pre-fetch config to warm up the serverless function
-    fetch("/api/elevenlabs/config")
-      .then(() => console.log("✅ API route pre-warmed"))
-      .catch(() => console.log("Pre-warm failed, will retry on connect"));
+    const preWarm = async () => {
+      perfLogger.mark("pre_warming_start", {
+        timestamp: new Date().toISOString(),
+      });
+      
+      try {
+        // Pre-fetch config to warm up the serverless function
+        const startTime = performance.now();
+        const response = await fetch("/api/elevenlabs/config", {
+          // Use priority hints if supported
+          priority: "high",
+        } as RequestInit);
+        const endTime = performance.now();
+        
+        if (response.ok) {
+          const warmUpTime = endTime - startTime;
+          console.log(`✅ API route pre-warmed in ${warmUpTime.toFixed(2)}ms`);
+          
+          // If cold start detected (>500ms), warm it again
+          if (warmUpTime > 500) {
+            console.log("🔄 Cold start detected, warming again...");
+            setTimeout(() => {
+              fetch("/api/elevenlabs/config").catch(() => {});
+            }, 100);
+          }
+        }
+      } catch {
+        console.log("Pre-warm failed, will retry on connect");
+      }
+      
+      perfLogger.mark("pre_warming_end", {
+        timestamp: new Date().toISOString(),
+      });
+    };
+    
+    // Start pre-warming immediately
+    preWarm();
+    
+    // Also pre-warm on visibility change (when tab becomes active)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetch("/api/elevenlabs/config").catch(() => {});
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   // Update listening state when connection changes
@@ -74,6 +132,11 @@ export function VoiceChat() {
   }, [isConnected, isRecording, isSpeaking, isProcessing, getInputVolume]);
 
   const handleConnect = async () => {
+    perfLogger.mark("button_clicked", {
+      timestamp: new Date().toISOString(),
+      isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
+    });
+    
     setError(null);
     setIsConnecting(true);
     try {
@@ -255,6 +318,7 @@ export function VoiceChat() {
           {!isConnected && (
             <div className="flex flex-col items-center">
               <Button 
+                ref={buttonRef}
                 onClick={handleConnect} 
                 variant="default" 
                 size="lg" 

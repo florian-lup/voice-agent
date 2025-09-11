@@ -34,7 +34,7 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
-        {process.env.NODE_ENV === "production" && process.env.VERCEL === "1" && <Analytics />}
+        <Analytics />
       </body>
     </html>
   );

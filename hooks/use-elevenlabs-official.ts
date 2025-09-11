@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useConversation } from "@elevenlabs/react";
+import { perfLogger } from "@/lib/performance-logger";
+import { logPerformanceSummary } from "@/lib/performance-analysis";
 
 export interface Message {
   id: string;
@@ -30,10 +32,16 @@ export const useElevenLabsAPI = (options?: UseElevenLabsOptions) => {
   const keepAliveIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastConnectionRef = useRef<{ agentId?: string; apiKey?: string }>({});
+  const firstMessageReceivedRef = useRef<boolean>(false);
 
   // Use the official ElevenLabs React hook
   const conversation = useConversation({
     onConnect: () => {
+      perfLogger.mark("websocket_connected", {
+        timestamp: new Date().toISOString(),
+      });
+      perfLogger.end("websocket_connection");
+      
       console.log("✅ Connected to ElevenLabs");
       setIsConnected(true);
       setIsListening(true);
@@ -83,6 +91,16 @@ export const useElevenLabsAPI = (options?: UseElevenLabsOptions) => {
       }
     },
     onMessage: (message: any) => {
+      // Log first message timing
+      if (!firstMessageReceivedRef.current) {
+        firstMessageReceivedRef.current = true;
+        perfLogger.mark("first_message_received", {
+          timestamp: new Date().toISOString(),
+          messageType: message.type,
+        });
+        perfLogger.end("time_to_first_message");
+      }
+      
       console.log("📨 Message received:", message);
 
       // Handle agent responses
@@ -133,19 +151,45 @@ export const useElevenLabsAPI = (options?: UseElevenLabsOptions) => {
   // Connect to ElevenLabs using API route for config
   const connect = useCallback(async () => {
     try {
+      // Reset and start fresh timing session
+      perfLogger.reset();
+      perfLogger.logEnvironment();
+      perfLogger.start("total_connection_time");
+      
       console.log("🔌 Fetching ElevenLabs configuration from API...");
       
-      // Fetch configuration from API route (keeps API key secure)
+      // Time the API config fetch
+      perfLogger.start("fetch_config", {
+        endpoint: "/api/elevenlabs/config",
+        method: "GET",
+      });
+      
+      const fetchStartTime = performance.now();
       const response = await fetch("/api/elevenlabs/config");
+      const fetchEndTime = performance.now();
+      
+      perfLogger.end("fetch_config", {
+        status: response.status,
+        ok: response.ok,
+      });
+      perfLogger.logNetworkTiming("/api/elevenlabs/config", fetchStartTime, fetchEndTime);
       
       if (!response.ok) {
+        perfLogger.mark("config_fetch_failed", { status: response.status });
         const error = await response.json();
         throw new Error(error.error || "Failed to fetch configuration");
       }
 
+      // Time the JSON parsing
+      perfLogger.start("parse_config_response");
       const config = await response.json();
+      perfLogger.end("parse_config_response", {
+        hasAgentId: !!config.agentId,
+        hasApiKey: !!config.apiKey,
+      });
       
       if (!config.agentId) {
+        perfLogger.mark("missing_agent_id");
         throw new Error("Agent ID not configured");
       }
 
@@ -155,12 +199,46 @@ export const useElevenLabsAPI = (options?: UseElevenLabsOptions) => {
       // Store connection config for potential reconnection
       lastConnectionRef.current = config;
 
+      // Time the ElevenLabs session creation
+      perfLogger.start("elevenlabs_session_creation", {
+        agentId: config.agentId.substring(0, 8) + "...", // Log partial ID for debugging
+      });
+      
+      // Reset first message flag for new connection
+      firstMessageReceivedRef.current = false;
+      
+      // Start WebSocket connection timing
+      perfLogger.start("websocket_connection");
+      perfLogger.start("time_to_first_message");
+      
       // Start session with the agent
       const sessionId = await conversation.startSession(config);
+      
+      perfLogger.end("elevenlabs_session_creation", {
+        sessionId: sessionId?.substring(0, 8) + "...", // Log partial session ID
+      });
 
       setConversationId(sessionId);
       console.log("💬 Conversation started with session ID:", sessionId);
+      
+      // End total timing and show summary
+      perfLogger.end("total_connection_time");
+      const summary = perfLogger.getSummary();
+      
+      // Perform detailed performance analysis
+      const timings = summary.operations.reduce((acc, op) => {
+        acc[op.name] = parseFloat(op.duration);
+        return acc;
+      }, {} as Record<string, number>);
+      logPerformanceSummary(timings);
+      
     } catch (error) {
+      perfLogger.mark("connection_error", {
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+      perfLogger.end("total_connection_time");
+      perfLogger.getSummary();
+      
       console.error("Failed to connect:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to connect to ElevenLabs";
