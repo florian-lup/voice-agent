@@ -31,14 +31,14 @@ export function LandingPage() {
   return (
     <>
       <Header />
-       <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center p-4 bg-background">
+       <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center py-8 px-4 bg-background">
       {/* Hero Section */}
       <div className="text-center space-y-8 max-w-4xl mx-auto">
-        <div className="space-y-4">
-          <h1 className="text-5xl md:text-7xl font-bold text-foreground tracking-tight">
+        <div className="space-y-2">
+          <h1 className="text-5xl md:text-7xl font-bold text-foreground tracking-tight" style={{ fontFamily: 'Mokoto, sans-serif' }}>
             Mr. Mime
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground">
+          <p className="text-lg md:text-2xl text-muted-foreground">
             Talk with AI-powered Digital Clones
           </p>
         </div>
@@ -47,10 +47,8 @@ export function LandingPage() {
         <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
           <DrawerTrigger asChild>
             <Button 
-              size="lg" 
-              className="text-lg"
             >
-              Open Phone Book
+              Open Contact List
             </Button>
           </DrawerTrigger>
 
@@ -106,9 +104,7 @@ export function LandingPage() {
                   
                   {/* Placeholder contacts */}
                   {[
-                    { name: "Elon Musk", role: "Tech Entrepreneur", initials: "EM" },
-                    { name: "Naval Ravikant", role: "Philosopher & Investor", initials: "NR" },
-                    { name: "Tony Robbins", role: "Life Coach", initials: "TR" },
+                    { name: "Tristan Tate", role: "Entrepreneur & Media Personality", initials: "TT" },
                   ].map((contact) => (
                     <div
                       key={contact.name}
@@ -142,7 +138,7 @@ export function LandingPage() {
         </Drawer>
 
         {/* Features */}
-        <div className="grid md:grid-cols-3 gap-6 mt-4 text-left">
+        <div className="grid md:grid-cols-3 gap-6 text-left">
           <div className="bg-card/50 backdrop-blur-sm rounded-xl p-6 border border-border">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-semibold text-card-foreground">Real-time Voice</h3>

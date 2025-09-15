@@ -1,6 +1,18 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Custom Mokoto Font */
+@font-face {
+  font-family: "Mokoto";
+  src:
+    url("/fonts/Mokoto.woff2") format("woff2"),
+    url("/fonts/Mokoto.woff") format("woff"),
+    url("/fonts/Mokoto.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
