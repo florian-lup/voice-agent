@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Phone, User, ChevronRight, MessageSquare, SquareUser } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ChevronRight, SquareUser } from "lucide-react";
 import {
   Drawer,
   DrawerClose,
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/drawer";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
+import { Header } from "@/components/header";
 
 export function LandingPage() {
   const router = useRouter();
@@ -27,7 +29,9 @@ export function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background bg-matrix">
+    <>
+      <Header />
+       <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center p-4 bg-background">
       {/* Hero Section */}
       <div className="text-center space-y-8 max-w-4xl mx-auto">
         <div className="space-y-4">
@@ -44,9 +48,8 @@ export function LandingPage() {
           <DrawerTrigger asChild>
             <Button 
               size="lg" 
-              className="text-lg px-8 py-6"
+              className="text-lg"
             >
-              <SquareUser className="mr-2 h-5 w-5" />
               Open Phone Book
             </Button>
           </DrawerTrigger>
@@ -55,7 +58,7 @@ export function LandingPage() {
             <DrawerHeader>
               <DrawerTitle className="text-2xl">Phone Book</DrawerTitle>
               <DrawerDescription>
-                Select a contact to start a voice conversation
+                Select a contact to start conversation
               </DrawerDescription>
             </DrawerHeader>
 
@@ -141,36 +144,50 @@ export function LandingPage() {
         {/* Features */}
         <div className="grid md:grid-cols-3 gap-6 mt-4 text-left">
           <div className="bg-card/50 backdrop-blur-sm rounded-xl p-6 border border-border">
-            <div className="h-12 w-12 bg-secondary rounded-lg flex items-center justify-center mb-4">
-              <Phone className="h-6 w-6 text-secondary-foreground" />
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-semibold text-card-foreground">Real-time Voice</h3>
+              <Badge variant="secondary">
+                Voice
+              </Badge>
             </div>
-            <h3 className="text-lg font-semibold text-card-foreground mb-2">Real-time Voice</h3>
             <p className="text-sm text-muted-foreground">
-              Natural, flowing conversations with minimal latency
+              Natural conversations with minimal latency
             </p>
           </div>
 
           <div className="bg-card/50 backdrop-blur-sm rounded-xl p-6 border border-border">
-            <div className="h-12 w-12 bg-secondary rounded-lg flex items-center justify-center mb-4">
-              <MessageSquare className="h-6 w-6 text-secondary-foreground" />
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-semibold text-card-foreground">Instant Messaging</h3>
+              <Badge variant="secondary">
+                Text
+              </Badge>
             </div>
-            <h3 className="text-lg font-semibold text-card-foreground mb-2">Instant Messaging</h3>
             <p className="text-sm text-muted-foreground">
               Text-based interactions for quick conversations
             </p>
           </div>
 
-                    <div className="bg-card/50 backdrop-blur-sm rounded-xl p-6 border border-border">
-            <div className="h-12 w-12 bg-secondary rounded-lg flex items-center justify-center mb-4">
-              <User className="h-6 w-6 text-secondary-foreground" />
+          <div className="bg-card/50 backdrop-blur-sm rounded-xl p-6 border border-border">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-lg font-semibold text-card-foreground">Digital Personas</h3>
+              <Badge variant="secondary">
+                AI
+              </Badge>
             </div>
-            <h3 className="text-lg font-semibold text-card-foreground mb-2">Digital Personas</h3>
             <p className="text-sm text-muted-foreground">
-              AI-powered personalities with unique voices and knowledge
+              Realistic personalities with speech patterns
             </p>
           </div>
         </div>
+
+        {/* Disclaimer */}
+        <div className="mt-6 pt-6 border-t border-border/50">
+          <p className="text-xs text-muted-foreground/70 text-center max-w-2xl mx-auto">
+            This app is for educational and entertainment purposes only
+          </p>
+        </div>
       </div>
     </div>
+    </>
   );
 }
