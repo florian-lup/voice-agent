@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Phone, User, ChevronRight, MessageSquare } from "lucide-react";
+import { Phone, User, ChevronRight, MessageSquare, SquareUser } from "lucide-react";
 import {
   Drawer,
   DrawerClose,
@@ -27,7 +27,7 @@ export function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-background bg-matrix">
       {/* Hero Section */}
       <div className="text-center space-y-8 max-w-4xl mx-auto">
         <div className="space-y-4">
@@ -46,7 +46,7 @@ export function LandingPage() {
               size="lg" 
               className="text-lg px-8 py-6"
             >
-              <Phone className="mr-2 h-5 w-5" />
+              <SquareUser className="mr-2 h-5 w-5" />
               Open Phone Book
             </Button>
           </DrawerTrigger>
@@ -139,7 +139,7 @@ export function LandingPage() {
         </Drawer>
 
         {/* Features */}
-        <div className="grid md:grid-cols-3 gap-6 mt-16 text-left">
+        <div className="grid md:grid-cols-3 gap-6 mt-4 text-left">
           <div className="bg-card/50 backdrop-blur-sm rounded-xl p-6 border border-border">
             <div className="h-12 w-12 bg-secondary rounded-lg flex items-center justify-center mb-4">
               <Phone className="h-6 w-6 text-secondary-foreground" />
