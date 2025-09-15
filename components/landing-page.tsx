@@ -25,7 +25,7 @@ export function LandingPage() {
   const handleContactClick = () => {
     setIsDrawerOpen(false);
     // Navigate to the Andrew Tate voice chat page
-    router.push("/chat/tate");
+    router.push("/chat//call/tate");
   };
 
   return (
@@ -54,7 +54,7 @@ export function LandingPage() {
 
           <DrawerContent className="max-h-[80vh]">
             <DrawerHeader>
-              <DrawerTitle className="text-2xl">Phone Book</DrawerTitle>
+              <DrawerTitle className="text-2xl">Contact List</DrawerTitle>
               <DrawerDescription>
                 Select a contact to start conversation
               </DrawerDescription>

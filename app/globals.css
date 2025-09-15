@@ -140,21 +140,3 @@
     cursor: pointer;
   }
 }
-
-/* Custom background classes for responsive images */
-.bg-tate-responsive {
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  /* Mobile background (default) */
-  background-image:
-    linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("/tate_mobile.jpg");
-}
-
-/* Tablet and desktop background (768px and up - corresponds to Tailwind's md: breakpoint) */
-@media (min-width: 768px) {
-  .bg-tate-responsive {
-    background-image:
-      linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("/tate_desktop.webp");
-  }
-}
