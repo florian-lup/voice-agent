@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronRight, SquareUser } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import {
   Drawer,
   DrawerClose,
@@ -75,7 +75,7 @@ export function LandingPage() {
                     className="w-full p-4 rounded-lg hover:bg-secondary/50 transition-colors duration-200 flex items-center gap-4 text-left group"
                   >
                     <Avatar className="h-12 w-12">
-                      <AvatarImage src="/tate_mobile.jpg" alt="Andrew Tate" />
+                      <AvatarImage src="/andrew-tate.jpg" alt="Andrew Tate" />
                       <AvatarFallback className="bg-primary text-primary-foreground font-bold">
                         AT
                       </AvatarFallback>
