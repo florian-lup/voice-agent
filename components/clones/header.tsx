@@ -13,7 +13,7 @@ interface HeaderProps {
 
 export function Header({ isConnected, isSpeaking }: HeaderProps) {
   return (
-    <div className="w-full flex items-center justify-between p-4">
+    <div className="fixed top-0 left-0 right-0 z-50 w-full flex items-center justify-between p-4">
       {/* Left side - Logo and Title */}
       <div className="flex items-center gap-3">
         <Image
@@ -33,10 +33,10 @@ export function Header({ isConnected, isSpeaking }: HeaderProps) {
             if (!isConnected) return "secondary";
             return "outline"; // Use outline as base for custom colors
           })()} 
-          className={`px-4 py-1 ${(isSpeaking || isConnected) ? "animate-pulse" : ""} ${(() => {
+          className={`px-4 py-1 ${(() => {
             if (!isConnected) return "";
-            if (isSpeaking) return "bg-green-400 text-white border-green-400";
-            return "bg-blue-400 text-white border-blue-400";
+            if (isSpeaking) return "animate-pulse bg-green-400 text-white border-green-400";
+            return "animate-pulse bg-blue-400 text-white border-blue-400";
           })()}`}
         >
           {(() => {

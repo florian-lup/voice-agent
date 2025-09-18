@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Phone, PhoneOff, Volume2, AlertCircle, Loader2 } from "lucide-react";
+import { Phone, Loader2 } from "lucide-react";
 import { Header } from "./header";
+import { type Message } from "@/hooks/use-elevenlabs-official";
+import { StreamingText } from "@/components/ui/streaming-text";
 
 interface AndrewTateUIProps {
   // Connection state
@@ -13,11 +14,9 @@ interface AndrewTateUIProps {
   isUserSpeaking: boolean;
   isConnecting: boolean;
   isSpeaking: boolean;
-  isProcessing: boolean;
   
   // Data
-  error: string | null;
-  agentResponse: string;
+  messages: Message[];
   
   // Handlers
   onConnect: () => void;
@@ -33,13 +32,38 @@ export function AndrewTateUI({
   isUserSpeaking,
   isConnecting,
   isSpeaking,
-  error,
-  agentResponse,
+  messages,
   onConnect,
   onDisconnect,
   buttonRef,
 }: AndrewTateUIProps) {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [streamingMessageIds, setStreamingMessageIds] = useState<Set<string>>(new Set());
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // Track new messages for streaming effect
+  useEffect(() => {
+    if (messages.length > 0) {
+      const latestMessage = messages[messages.length - 1];
+      // Only stream assistant messages (not user messages)
+      if (latestMessage.role === "assistant") {
+        setStreamingMessageIds((prev) => {
+          if (!prev.has(latestMessage.id)) {
+            return new Set(prev).add(latestMessage.id);
+          }
+          return prev; // Return same set if message already exists
+        });
+      }
+    } else {
+      // Clear streaming state when messages are cleared
+      setStreamingMessageIds(new Set());
+    }
+  }, [messages]);
 
   // Timer effect for tracking connection duration
   useEffect(() => {
@@ -69,8 +93,17 @@ export function AndrewTateUI({
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Handle streaming completion
+  const handleStreamComplete = (messageId: string) => {
+    setStreamingMessageIds((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(messageId);
+      return newSet;
+    });
+  };
+
   return (
-    <div className="h-screen flex flex-col overflow-hidden">
+    <div className="fixed inset-0 flex flex-col overflow-hidden">
       {/* Header */}
       <Header 
         isConnected={isConnected}
@@ -79,9 +112,9 @@ export function AndrewTateUI({
       />
       
       {/* Main Content */}
-      <div className="flex-1 flex flex-col p-4">
+      <div className="flex-1 flex flex-col p-4 pt-20 overflow-hidden">
         {/* Voice Visualization Area - At the top */}
-        <div className="w-full max-w-2xl mx-auto mb-6">
+        <div className="w-full max-w-4xl mx-auto mb-6">
           <div className="relative h-60 rounded-xl overflow-hidden backdrop-blur-[2px] bg-secondary/10">
             {/* Background image - static, no animation */}
             <div 
@@ -130,83 +163,70 @@ export function AndrewTateUI({
           </div>
         </div>
 
-        {/* Card Container - Centered in remaining space */}
-        <div className="flex-1 flex items-center justify-center">
-          <Card className="w-full max-w-2xl shadow-2xl backdrop-blur-[2px] bg-card/60">
-            <CardContent className="space-y-6 pb-8 pt-8">
-            {/* Current Response Display */}
-            {agentResponse && (
-              <div className="p-4 bg-secondary/10 rounded-lg min-h-[80px]">
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-primary uppercase tracking-wider flex items-center gap-1">
-                    <Volume2 className="h-3 w-3" />
-                    AI Response:
-                  </p>
-                  <p className="text-lg">{agentResponse}</p>
-                </div>
-              </div>
+        {/* Messages Section */}
+        <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col min-h-0">
+          <div className="flex-1 overflow-y-auto p-2 pb-24 space-y-4">
+            {messages.length > 0 && (
+              <>
+                {messages.map((message) => (
+                  <div key={message.id} className="w-full">
+                    {message.role === "assistant" && streamingMessageIds.has(message.id) ? (
+                      <StreamingText
+                        text={message.content}
+                        speed={20}
+                        className="text-3xl whitespace-pre-wrap w-full"
+                        isActive={true}
+                        onComplete={() => handleStreamComplete(message.id)}
+                      />
+                    ) : (
+                      <p className="text-3xl whitespace-pre-wrap w-full">{message.content}</p>
+                    )}
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </>
             )}
-
-            {/* Error Display */}
-            {error && (
-              <div className="p-3 bg-destructive/5 border border-destructive/10 rounded-lg">
-                <div className="flex items-start gap-2">
-                  <AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
-                  <div className="text-sm text-destructive whitespace-pre-wrap">{error}</div>
-                </div>
-              </div>
-            )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Control Buttons - Fixed at Bottom */}
-        <div className="flex flex-col items-center gap-3 pb-4">
-          {/* Timer - Reserve space to prevent layout shift */}
-          <div className={`text-sm font-mono px-3 py-2 rounded-md transition-opacity duration-200 ${
-            isConnected 
-              ? "text-muted-foreground bg-secondary/20 opacity-100" 
-              : "text-transparent opacity-0"
-          }`}>
-            {isConnected ? formatElapsedTime(elapsedSeconds) : "00:00"}
           </div>
-
-          {/* Buttons */}
-          {isConnected && (
-            <Button
-              onClick={onDisconnect}
-              variant="outline"
-              size="lg"
-              className="min-w-[200px]"
-            >
-              <PhoneOff className="h-5 w-5 mr-2" />
-              End Conversation
-            </Button>
-          )}
-
-          {!isConnected && (
-            <Button 
-              ref={buttonRef}
-              onClick={onConnect} 
-              variant="default" 
-              size="lg" 
-              className="min-w-[200px]"
-              disabled={isConnecting}
-            >
-              {isConnecting ? (
-                <>
-                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                  Calling...
-                </>
-              ) : (
-                <>
-                  <Phone className="h-5 w-5 mr-2" />
-                  Start Conversation
-                </>
-              )}
-            </Button>
-          )}
         </div>
+      </div>
+
+      {/* Floating Control Button */}
+      <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
+        {/* Buttons */}
+        {isConnected && (
+          <Button
+            onClick={onDisconnect}
+            variant="outline"
+            size="lg"
+            className="min-w-[200px] shadow-2xl backdrop-blur-sm bg-background/90 border-2"
+          >
+            <span className="font-mono mr-2">{formatElapsedTime(elapsedSeconds)}</span>
+            End Conversation
+          </Button>
+        )}
+
+        {!isConnected && (
+          <Button 
+            ref={buttonRef}
+            onClick={onConnect} 
+            variant="default" 
+            size="lg" 
+            className="min-w-[200px] shadow-2xl backdrop-blur-sm"
+            disabled={isConnecting}
+          >
+            {isConnecting ? (
+              <>
+                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                Calling...
+              </>
+            ) : (
+              <>
+                <Phone className="h-5 w-5 mr-2" />
+                Start Conversation
+              </>
+            )}
+          </Button>
+        )}
       </div>
     </div>
   );

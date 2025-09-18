@@ -7,8 +7,6 @@ import { useConnectionOptimizer, usePreWarmTriggers } from "@/hooks/use-connecti
 import { AndrewTateUI } from "@/components/clones/andrew-tate";
 
 export function VoiceChat() {
-  const [error, setError] = useState<string | null>(null);
-  const [agentResponse, setAgentResponse] = useState<string>("");
   const [isListening, setIsListening] = useState(false);
   const [isUserSpeaking, setIsUserSpeaking] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -25,19 +23,17 @@ export function VoiceChat() {
     isListening: isRecording,
     isProcessing,
     isSpeaking,
+    messages,
     connect,
     disconnect,
     getInputVolume,
   } = useElevenLabsAPI({
     autoReconnect: true, // Enable auto-reconnect on unexpected disconnection
-    onError: (error) => {
-      setError(error.message);
-      setTimeout(() => setError(null), 5000);
-    },
     onMessage: (message) => {
+      console.log("🎯 VoiceChat received message:", message);
       // Update agent response based on role
       if (message.role === "assistant") {
-        setAgentResponse(message.content);
+        console.log("🎯 Setting agent response:", message.content);
         setIsUserSpeaking(false); // Ensure user speaking state is cleared
       }
     },
@@ -134,22 +130,22 @@ export function VoiceChat() {
       isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
     });
     
-    setError(null);
     setIsConnecting(true);
     try {
       await connect();
     } catch (err) {
       setIsConnecting(false);
-      setError(err instanceof Error ? err.message : "Failed to connect");
+      console.error("Failed to connect:", err instanceof Error ? err.message : "Unknown error");
     }
   };
 
   const handleDisconnect = () => {
     disconnect();
-    setAgentResponse("");
     setIsListening(false);
   };
 
+  console.log("🔍 VoiceChat passing messages to AndrewTateUI:", messages);
+  
   return (
     <AndrewTateUI
       isConnected={isConnected}
@@ -157,9 +153,7 @@ export function VoiceChat() {
       isUserSpeaking={isUserSpeaking}
       isConnecting={isConnecting}
       isSpeaking={isSpeaking}
-      isProcessing={isProcessing}
-      error={error}
-      agentResponse={agentResponse}
+      messages={messages}
       onConnect={handleConnect}
       onDisconnect={handleDisconnect}
       buttonRef={buttonRef}

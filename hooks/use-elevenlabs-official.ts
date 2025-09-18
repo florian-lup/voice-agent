@@ -102,29 +102,95 @@ export const useElevenLabsAPI = (options?: UseElevenLabsOptions) => {
       }
       
       console.log("📨 Message received:", message);
+      console.log("📨 Message type:", message.type);
+      console.log("📨 Message keys:", Object.keys(message));
+      console.log("📨 Full message object:", JSON.stringify(message, null, 2));
 
       // Handle agent responses
       if (message.type === "agent_response" && message.agent_response) {
+        console.log("✅ Creating assistant message from agent_response:", message.agent_response);
         const agentMessage: Message = {
           id: Date.now().toString(),
           role: "assistant",
           content: message.agent_response,
           timestamp: new Date(),
         };
-        setMessages((prev) => [...prev, agentMessage]);
+        setMessages((prev) => {
+          console.log("📝 Previous messages:", prev);
+          const updated = [...prev, agentMessage];
+          console.log("📝 Updated messages:", updated);
+          return updated;
+        });
         options?.onMessage?.(agentMessage);
       }
 
       // Handle text messages
       if (message.type === "text" && message.text) {
+        console.log("✅ Creating assistant message from text:", message.text);
         const textMessage: Message = {
           id: Date.now().toString(),
           role: "assistant",
           content: message.text,
           timestamp: new Date(),
         };
-        setMessages((prev) => [...prev, textMessage]);
+        setMessages((prev) => {
+          console.log("📝 Previous messages:", prev);
+          const updated = [...prev, textMessage];
+          console.log("📝 Updated messages:", updated);
+          return updated;
+        });
         options?.onMessage?.(textMessage);
+      }
+
+      // Handle audio transcripts (assistant speaking)
+      if (message.type === "audio" && message.audio?.transcript) {
+        console.log("✅ Creating assistant message from audio transcript:", message.audio.transcript);
+        const audioMessage: Message = {
+          id: Date.now().toString(),
+          role: "assistant",
+          content: message.audio.transcript,
+          timestamp: new Date(),
+        };
+        setMessages((prev) => {
+          const updated = [...prev, audioMessage];
+          console.log("📝 Updated messages with audio transcript:", updated);
+          return updated;
+        });
+        options?.onMessage?.(audioMessage);
+      }
+
+      // Handle conversation update (which may contain transcript)
+      if (message.type === "conversation_update" && message.conversation?.transcript) {
+        console.log("✅ Creating assistant message from conversation transcript:", message.conversation.transcript);
+        const conversationMessage: Message = {
+          id: Date.now().toString(),
+          role: "assistant",
+          content: message.conversation.transcript,
+          timestamp: new Date(),
+        };
+        setMessages((prev) => {
+          const updated = [...prev, conversationMessage];
+          console.log("📝 Updated messages with conversation transcript:", updated);
+          return updated;
+        });
+        options?.onMessage?.(conversationMessage);
+      }
+
+      // Handle messages with source field (most common format from ElevenLabs)
+      if (message.source === "ai" && message.message) {
+        console.log("✅ Creating assistant message from AI source:", message.message);
+        const aiMessage: Message = {
+          id: Date.now().toString(),
+          role: "assistant",
+          content: message.message,
+          timestamp: new Date(),
+        };
+        setMessages((prev) => {
+          const updated = [...prev, aiMessage];
+          console.log("📝 Updated messages with AI message:", updated);
+          return updated;
+        });
+        options?.onMessage?.(aiMessage);
       }
     },
     onError: (error: any) => {
@@ -322,6 +388,7 @@ export const useElevenLabsAPI = (options?: UseElevenLabsOptions) => {
 
   // Clear messages
   const clearMessages = useCallback(() => {
+    console.log("🧹 Clearing messages");
     setMessages([]);
   }, []);
 

@@ -31,10 +31,10 @@ export function LandingPage() {
   return (
     <>
       <Header />
-       <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center py-8 px-4 bg-background">
+       <div className="fixed inset-0 flex flex-col items-center justify-center pt-24 pb-8 px-4 bg-background">
       {/* Hero Section */}
       <div className="text-center space-y-8 max-w-4xl mx-auto">
-        <div className="space-y-2">
+        <div className="space-y-2 mb-4">
           <h1 className="text-5xl md:text-7xl font-bold text-foreground tracking-tight" style={{ fontFamily: 'Mokoto, sans-serif' }}>
             Mr. Mime
           </h1>
@@ -46,7 +46,7 @@ export function LandingPage() {
         {/* Main CTA */}
         <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
           <DrawerTrigger asChild>
-            <Button 
+            <Button className="mb-4"
             >
               Open Contact List
             </Button>
@@ -138,7 +138,7 @@ export function LandingPage() {
         </Drawer>
 
         {/* Features */}
-        <div className="grid md:grid-cols-3 gap-6 text-left">
+        <div className="grid md:grid-cols-3 gap-4 text-left mb-4">
           <div className="bg-card/50 backdrop-blur-sm rounded-xl p-6 border border-border">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-semibold text-card-foreground">Real-time Voice</h3>
@@ -177,7 +177,7 @@ export function LandingPage() {
         </div>
 
         {/* Disclaimer */}
-        <div className="mt-6 pt-6 border-t border-border/50">
+        <div className="pt-4 border-t border-border/50">
           <p className="text-xs text-muted-foreground/70 text-center max-w-2xl mx-auto">
             This app is for educational and entertainment purposes only
           </p>
