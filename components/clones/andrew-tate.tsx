@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Phone, Loader2 } from "lucide-react";
 import { Header } from "./header";
 import { type Message } from "@/hooks/use-elevenlabs-official";
 import { StreamingText } from "@/components/ui/streaming-text";
@@ -87,12 +85,6 @@ export function AndrewTateUI({
     };
   }, [isConnected]);
 
-  // Format elapsed time as mm:ss
-  const formatElapsedTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
 
   // Handle streaming completion
   const handleStreamComplete = (messageId: string) => {
@@ -110,6 +102,11 @@ export function AndrewTateUI({
         isConnected={isConnected}
         isListening={isListening}
         isSpeaking={isSpeaking}
+        isConnecting={isConnecting}
+        elapsedSeconds={elapsedSeconds}
+        onConnect={onConnect}
+        onDisconnect={onDisconnect}
+        buttonRef={buttonRef}
       />
       
       {/* Main Content */}
@@ -122,7 +119,7 @@ export function AndrewTateUI({
               {/* Avatar */}
               <div className="flex-shrink-0">
                 <Image
-                  src="/mrmime-avatar.png"
+                  src="/mr-mime-cover.svg"
                   alt="Mr. Mime Avatar"
                   width={120}
                   height={120}
@@ -134,7 +131,11 @@ export function AndrewTateUI({
               <div className="flex flex-col justify-center">
                 {/* Counter */}
                 <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-mono font-bold mb-1 sm:mb-2">
-                  {formatElapsedTime(elapsedSeconds)}
+                  {(() => {
+                    const mins = Math.floor(elapsedSeconds / 60);
+                    const secs = elapsedSeconds % 60;
+                    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                  })()}
                 </div>
                 
                 {/* Mr. Mime text */}
@@ -221,7 +222,7 @@ export function AndrewTateUI({
 
         {/* Messages Section */}
         <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col min-h-0">
-          <div className="flex-1 overflow-y-auto p-2 pb-24 space-y-4">
+          <div className="flex-1 overflow-y-auto p-2 pb-4 space-y-4">
             {messages.length > 0 && (
               <>
                 {messages.map((message) => (
@@ -246,44 +247,6 @@ export function AndrewTateUI({
         </div>
       </div>
 
-      {/* Floating Control Button */}
-      <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
-        {/* Buttons */}
-        {isConnected && (
-          <Button
-            onClick={onDisconnect}
-            variant="outline"
-            size="lg"
-            className="min-w-[200px] shadow-2xl backdrop-blur-sm bg-background/90 border-2"
-          >
-            <span className="font-mono mr-2">{formatElapsedTime(elapsedSeconds)}</span>
-            End Conversation
-          </Button>
-        )}
-
-        {!isConnected && (
-          <Button 
-            ref={buttonRef}
-            onClick={onConnect} 
-            variant="default" 
-            size="lg" 
-            className="min-w-[200px] shadow-2xl backdrop-blur-sm"
-            disabled={isConnecting}
-          >
-            {isConnecting ? (
-              <>
-                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                Calling...
-              </>
-            ) : (
-              <>
-                <Phone className="h-5 w-5 mr-2" />
-                Start Conversation
-              </>
-            )}
-          </Button>
-        )}
-      </div>
     </div>
   );
 }

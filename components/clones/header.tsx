@@ -1,31 +1,34 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, Volume2, Mic } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AlertCircle, Volume2, Mic, Phone, Loader2, PhoneOff } from "lucide-react";
 
 interface HeaderProps {
   isConnected: boolean;
   isListening: boolean;
   isSpeaking: boolean;
+  isConnecting: boolean;
+  elapsedSeconds: number;
+  onConnect: () => void;
+  onDisconnect: () => void;
+  buttonRef: React.RefObject<HTMLButtonElement | null>;
 }
 
-export function Header({ isConnected, isSpeaking }: HeaderProps) {
+export function Header({ 
+  isConnected, 
+  isSpeaking, 
+  isConnecting, 
+  onConnect, 
+  onDisconnect, 
+  buttonRef 
+}: HeaderProps) {
+  // Format elapsed time as mm:ss
+
   return (
     <div className="fixed top-0 left-0 right-0 z-50 w-full flex items-center justify-between p-4">
-      {/* Left side - Logo and Title */}
-      <div className="flex items-center gap-3">
-        <Image
-          src="/mr-mime-logo.svg"
-          alt="Mr. Mime Logo"
-          width={40}
-          height={40}
-          className="w-10 h-10"
-        />
-      </div>
-
-      {/* Right side - Status Badge */}
+      {/* Left side - Status Badge */}
       <div className="flex items-center gap-2">
         <Badge 
           variant={(() => {
@@ -63,6 +66,35 @@ export function Header({ isConnected, isSpeaking }: HeaderProps) {
             }
           })()}
         </Badge>
+      </div>
+
+      {/* Right side - Control Button */}
+      <div className="flex items-center">
+        {isConnected && (
+          <Button
+            onClick={onDisconnect}
+            variant="destructive"
+            size="sm"
+          >
+<PhoneOff/>
+          </Button>
+        )}
+
+        {!isConnected && (
+          <Button 
+            ref={buttonRef}
+            onClick={onConnect} 
+            variant="default" 
+            size="sm" 
+            disabled={isConnecting}
+          >
+{isConnecting ? (
+              <Loader2/>
+            ) : (
+              <Phone/>
+            )}
+          </Button>
+        )}
       </div>
     </div>
   );
