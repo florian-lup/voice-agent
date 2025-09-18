@@ -122,7 +122,7 @@ export function AndrewTateUI({
               {/* Avatar */}
               <div className="flex-shrink-0">
                 <Image
-                  src="/mrmime.png"
+                  src="/mrmime-avatar.png"
                   alt="Mr. Mime Avatar"
                   width={120}
                   height={120}
