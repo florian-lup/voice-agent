@@ -96,7 +96,7 @@ export function AndrewTateUI({
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col overflow-hidden">
+    <div className="min-h-dvh h-dvh flex flex-col overflow-hidden">
       {/* Header */}
       <Header 
         isConnected={isConnected}
@@ -119,10 +119,11 @@ export function AndrewTateUI({
               {/* Avatar */}
               <div className="flex-shrink-0">
                 <Image
-                  src="/mr-mime-cover.svg"
+                  src="/mr-mime-avatar.svg"
                   alt="Mr. Mime Avatar"
                   width={120}
                   height={120}
+                  priority
                   className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 xl:w-30 xl:h-30 rounded-lg"
                 />
               </div>
@@ -222,7 +223,7 @@ export function AndrewTateUI({
 
         {/* Messages Section */}
         <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col min-h-0">
-          <div className="flex-1 overflow-y-auto p-2 pb-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-2 space-y-4">
             {messages.length > 0 && (
               <>
                 {messages.map((message) => (
