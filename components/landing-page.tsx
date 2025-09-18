@@ -35,7 +35,7 @@ export function LandingPage() {
       {/* Hero Section */}
       <div className="text-center space-y-8 max-w-4xl mx-auto">
         <div className="space-y-2 mb-4">
-          <h1 className="text-5xl md:text-7xl font-bold text-foreground tracking-tight" style={{ fontFamily: 'Mokoto, sans-serif' }}>
+          <h1 className="text-5xl md:text-7xl font-bold text-foreground tracking-tight font-mokoto">
             Mr. Mime
           </h1>
           <p className="text-lg md:text-2xl text-muted-foreground">
