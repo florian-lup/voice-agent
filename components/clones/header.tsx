@@ -23,7 +23,6 @@ export function Header({ isConnected, isSpeaking }: HeaderProps) {
           height={40}
           className="w-10 h-10"
         />
-        <h1 className="text-2xl font-bold">Andrew Tate</h1>
       </div>
 
       {/* Right side - Status Badge */}

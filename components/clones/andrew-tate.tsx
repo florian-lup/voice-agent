@@ -6,6 +6,7 @@ import { Phone, Loader2 } from "lucide-react";
 import { Header } from "./header";
 import { type Message } from "@/hooks/use-elevenlabs-official";
 import { StreamingText } from "@/components/ui/streaming-text";
+import Image from "next/image";
 
 interface AndrewTateUIProps {
   // Connection state
@@ -115,18 +116,73 @@ export function AndrewTateUI({
       <div className="flex-1 flex flex-col p-4 pt-20 overflow-hidden">
         {/* Voice Visualization Area - At the top */}
         <div className="w-full max-w-4xl mx-auto mb-6">
-          <div className="relative h-60 rounded-xl overflow-hidden backdrop-blur-[2px] bg-secondary/10">
-            {/* Background image - static, no animation */}
-            <div 
-              className="absolute inset-0"
-              style={{
-                backgroundImage: 'url(/andrew-tate.jpg)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat',
-              }}
-            ></div>
-            
+          <div className="relative rounded-xl overflow-hidden backdrop-blur-[2px] bg-secondary/10 flex items-center p-3 sm:p-4 md:p-6 lg:p-8">
+            {/* Left side - Avatar, Counter and Name */}
+            <div className="flex items-center gap-3 sm:gap-4 md:gap-6 z-10">
+              {/* Avatar */}
+              <div className="flex-shrink-0">
+                <Image
+                  src="/mrmime.png"
+                  alt="Mr. Mime Avatar"
+                  width={120}
+                  height={120}
+                  className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 xl:w-30 xl:h-30 rounded-lg"
+                />
+              </div>
+              
+              {/* Counter and name */}
+              <div className="flex flex-col justify-center">
+                {/* Counter */}
+                <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-mono font-bold mb-1 sm:mb-2">
+                  {formatElapsedTime(elapsedSeconds)}
+                </div>
+                
+                {/* Mr. Mime text */}
+                <div className="text-sm sm:text-lg md:text-xl lg:text-2xl font-semibold text-muted-foreground">
+                  Mr. Mime
+                </div>
+              </div>
+            </div>
+
+            {/* Right side - Waveform */}
+            <div className="flex-1 flex items-center justify-end pr-4 sm:pr-6 md:pr-8 z-10">
+              <div className="flex items-center gap-1 h-16 sm:h-20 md:h-24">
+                {[...Array(12)].map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-1 sm:w-1.5 md:w-2 rounded-full transition-all duration-300 ${
+                      (() => {
+                        if (!isConnected) {
+                          // Disconnected - minimal static bars
+                          return "h-2 bg-gray-400";
+                        } else if (isUserSpeaking) {
+                          // User speaking - blue wave pattern
+                          const heights = ["h-4", "h-6", "h-8", "h-10", "h-12", "h-12", "h-12", "h-10", "h-8", "h-6", "h-4", "h-3"];
+                          return `${heights[i]} bg-blue-400 animate-pulse`;
+                        } else if (isSpeaking) {
+                          // AI speaking - green wave pattern
+                          const heights = ["h-3", "h-5", "h-7", "h-9", "h-12", "h-14", "h-14", "h-12", "h-9", "h-7", "h-5", "h-3"];
+                          return `${heights[i]} bg-green-400 animate-pulse`;
+                        } else {
+                          // Connected but idle - gentle wave pattern
+                          const heights = ["h-2", "h-3", "h-5", "h-6", "h-8", "h-8", "h-8", "h-6", "h-5", "h-3", "h-2", "h-2"];
+                          return `${heights[i]} bg-primary/50 animate-pulse`;
+                        }
+                      })()
+                    }`}
+                    style={{
+                      animationDelay: `${i * 100}ms`,
+                      animationDuration: (() => {
+                        if (!isConnected) return "3s";
+                        if (isUserSpeaking || isSpeaking) return "0.8s";
+                        return "2s";
+                      })()
+                    }}
+                  ></div>
+                ))}
+              </div>
+            </div>
+
             {/* Animated border overlay */}
             <div 
               className={`absolute inset-0 rounded-xl border-4 transition-all duration-300 ${
