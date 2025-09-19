@@ -38,11 +38,69 @@ export function AndrewTateUI({
 }: AndrewTateUIProps) {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const [isStreamingActive, setIsStreamingActive] = useState(false);
+
+  // Smooth scroll to bottom function
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior });
+    }
+  };
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    scrollToBottom();
   }, [messages]);
+
+  // Track if user has manually scrolled up
+  const isNearBottom = () => {
+    if (!messagesContainerRef.current) return true;
+    const container = messagesContainerRef.current;
+    const threshold = 100; // pixels from bottom
+    return container.scrollTop + container.clientHeight >= container.scrollHeight - threshold;
+  };
+
+  // Handle streaming text scroll optimization
+  useEffect(() => {
+    if (!messagesContainerRef.current) return;
+
+    const container = messagesContainerRef.current;
+    let animationFrameId: number;
+    let lastContentHeight = container.scrollHeight;
+
+
+    // Check for content height changes (during streaming)
+    const checkContentChanges = () => {
+      const currentHeight = container.scrollHeight;
+      if (currentHeight !== lastContentHeight) {
+        lastContentHeight = currentHeight;
+        if (isStreamingActive && isNearBottom()) {
+          scrollToBottom("auto");
+        }
+      }
+      // Continue checking while streaming
+      if (isStreamingActive) {
+        animationFrameId = requestAnimationFrame(checkContentChanges);
+      }
+    };
+
+    // Start monitoring when streaming begins
+    if (isStreamingActive) {
+      checkContentChanges();
+    }
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [isStreamingActive]);
+
+  // Detect streaming activity based on isSpeaking state
+  useEffect(() => {
+    setIsStreamingActive(isSpeaking);
+  }, [isSpeaking]);
 
 
   // Timer effect for tracking connection duration
@@ -196,7 +254,10 @@ export function AndrewTateUI({
 
         {/* Messages Section */}
         <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col min-h-0">
-          <div className="flex-1 overflow-y-auto p-2 space-y-4">
+          <div 
+            ref={messagesContainerRef}
+            className="flex-1 overflow-y-auto p-2 space-y-4"
+          >
             {messages.length > 0 && (
               <>
                 {messages.map((message) => (
@@ -206,6 +267,12 @@ export function AndrewTateUI({
                         text={message.content}
                         speed={45}
                         className="text-3xl whitespace-pre-wrap w-full"
+                        onUpdate={() => {
+                          // Trigger scroll when streaming text updates
+                          if (isNearBottom()) {
+                            scrollToBottom("auto");
+                          }
+                        }}
                       />
                     ) : (
                       <p className="text-3xl whitespace-pre-wrap w-full">{message.content}</p>
