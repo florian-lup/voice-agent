@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Header } from "./header";
 import { type Message } from "@/hooks/use-elevenlabs-official";
-import { StreamingText } from "@/components/ui/streaming-text";
+import { StreamingText } from "@/components/streaming-text";
 import Image from "next/image";
 
 interface AndrewTateUIProps {
@@ -37,7 +37,6 @@ export function AndrewTateUI({
   buttonRef,
 }: AndrewTateUIProps) {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const [streamingMessageIds, setStreamingMessageIds] = useState<Set<string>>(new Set());
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when new messages arrive
@@ -45,24 +44,6 @@ export function AndrewTateUI({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Track new messages for streaming effect
-  useEffect(() => {
-    if (messages.length > 0) {
-      const latestMessage = messages[messages.length - 1];
-      // Only stream assistant messages (not user messages)
-      if (latestMessage.role === "assistant") {
-        setStreamingMessageIds((prev) => {
-          if (!prev.has(latestMessage.id)) {
-            return new Set(prev).add(latestMessage.id);
-          }
-          return prev; // Return same set if message already exists
-        });
-      }
-    } else {
-      // Clear streaming state when messages are cleared
-      setStreamingMessageIds(new Set());
-    }
-  }, [messages]);
 
   // Timer effect for tracking connection duration
   useEffect(() => {
@@ -86,14 +67,6 @@ export function AndrewTateUI({
   }, [isConnected]);
 
 
-  // Handle streaming completion
-  const handleStreamComplete = (messageId: string) => {
-    setStreamingMessageIds((prev) => {
-      const newSet = new Set(prev);
-      newSet.delete(messageId);
-      return newSet;
-    });
-  };
 
   return (
     <div className="min-h-dvh h-dvh flex flex-col overflow-hidden">
@@ -228,13 +201,11 @@ export function AndrewTateUI({
               <>
                 {messages.map((message) => (
                   <div key={message.id} className="w-full">
-                    {message.role === "assistant" && streamingMessageIds.has(message.id) ? (
+                    {message.role === "assistant" ? (
                       <StreamingText
                         text={message.content}
-                        speed={20}
+                        speed={45}
                         className="text-3xl whitespace-pre-wrap w-full"
-                        isActive={true}
-                        onComplete={() => handleStreamComplete(message.id)}
                       />
                     ) : (
                       <p className="text-3xl whitespace-pre-wrap w-full">{message.content}</p>

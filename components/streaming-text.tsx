@@ -7,15 +7,13 @@ interface StreamingTextProps {
   speed?: number; // milliseconds per character
   onComplete?: () => void;
   className?: string;
-  isActive?: boolean; // Control whether to show streaming effect
 }
 
 export function StreamingText({ 
   text, 
   speed = 30, 
   onComplete,
-  className = "",
-  isActive = true
+  className = ""
 }: StreamingTextProps) {
   const [displayedText, setDisplayedText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -24,15 +22,15 @@ export function StreamingText({
   const hasCompletedRef = useRef(false);
 
   useEffect(() => {
-    // If not active or text is empty, show full text immediately
-    if (!isActive || !text) {
-      setDisplayedText(text || "");
-      setCurrentIndex(text?.length || 0);
+    // If text is empty, don't display anything
+    if (!text) {
+      setDisplayedText("");
+      setCurrentIndex(0);
       setIsComplete(true);
       return;
     }
 
-    // Reset state when text changes
+    // Reset state when text changes and start streaming immediately
     setDisplayedText("");
     setCurrentIndex(0);
     setIsComplete(false);
@@ -67,7 +65,7 @@ export function StreamingText({
         intervalRef.current = null;
       }
     };
-  }, [text, speed, isActive]);
+  }, [text, speed]);
 
   // Update displayed text when index changes
   useEffect(() => {
