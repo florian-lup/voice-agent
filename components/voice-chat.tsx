@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useElevenLabsAPI } from "@/hooks/use-elevenlabs-official";
 import { perfLogger } from "@/lib/performance-logger";
 import { useConnectionOptimizer, usePreWarmTriggers } from "@/hooks/use-connection-optimizer";
-import { VoiceAgentUI } from "@/components/voice-agent";
+import { VoiceAgentUI } from "@/components/agent_ui";
 
 export function VoiceChat() {
   const [isListening, setIsListening] = useState(false);

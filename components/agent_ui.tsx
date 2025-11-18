@@ -151,7 +151,7 @@ export function VoiceAgentUI({
               <div className="flex-shrink-0">
                 <Image
                   src="/voice-agent-avatar.svg"
-                  alt="Voice Clone Avatar"
+                  alt="Voice Agent Avatar"
                   width={120}
                   height={120}
                   priority
@@ -170,9 +170,9 @@ export function VoiceAgentUI({
                   })()}
                 </div>
                 
-                {/* Voice Clone text */}
+                {/* Voice Agent text */}
                 <div className="text-sm sm:text-lg md:text-xl lg:text-2xl font-semibold text-muted-foreground">
-                  Voice Clone
+                  Voice Agent
                 </div>
               </div>
             </div>
