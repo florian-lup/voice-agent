@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useElevenLabsAPI } from "@/hooks/use-elevenlabs-official";
 import { perfLogger } from "@/lib/performance-logger";
 import { useConnectionOptimizer, usePreWarmTriggers } from "@/hooks/use-connection-optimizer";
-import { AndrewTateUI } from "@/components/clones/andrew-tate";
+import { VoiceCloneUI } from "@/components/voice-clone";
 
 export function VoiceChat() {
   const [isListening, setIsListening] = useState(false);
@@ -30,10 +30,8 @@ export function VoiceChat() {
   } = useElevenLabsAPI({
     autoReconnect: true, // Enable auto-reconnect on unexpected disconnection
     onMessage: (message) => {
-      console.log("🎯 VoiceChat received message:", message);
       // Update agent response based on role
       if (message.role === "assistant") {
-        console.log("🎯 Setting agent response:", message.content);
         setIsUserSpeaking(false); // Ensure user speaking state is cleared
       }
     },
@@ -60,18 +58,18 @@ export function VoiceChat() {
         
         if (response.ok) {
           const warmUpTime = endTime - startTime;
-          console.log(`✅ API route pre-warmed in ${warmUpTime.toFixed(2)}ms`);
+          // console.log(`✅ API route pre-warmed in ${warmUpTime.toFixed(2)}ms`);
           
           // If cold start detected (>500ms), warm it again
           if (warmUpTime > 500) {
-            console.log("🔄 Cold start detected, warming again...");
+            // console.log("🔄 Cold start detected, warming again...");
             setTimeout(() => {
               fetch("/api/elevenlabs/config").catch(() => {});
             }, 100);
           }
         }
       } catch {
-        console.log("Pre-warm failed, will retry on connect");
+        // console.log("Pre-warm failed, will retry on connect");
       }
       
       perfLogger.mark("pre_warming_end", {
@@ -144,10 +142,10 @@ export function VoiceChat() {
     setIsListening(false);
   };
 
-  console.log("🔍 VoiceChat passing messages to AndrewTateUI:", messages);
+  // console.log("🔍 VoiceChat passing messages to VoiceCloneUI:", messages);
   
   return (
-    <AndrewTateUI
+    <VoiceCloneUI
       isConnected={isConnected}
       isListening={isListening}
       isUserSpeaking={isUserSpeaking}

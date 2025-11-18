@@ -8,18 +8,18 @@ export const runtime = 'edge';
  * Returns the ElevenLabs configuration needed to start a session
  * This keeps the API key secure on the server side
  */
-export async function GET(request: Request) {
+export async function GET() {
   const startTime = Date.now();
   
-  // Log request details
-  console.log("[API] Config request received", {
-    timestamp: new Date().toISOString(),
-    headers: {
-      userAgent: request.headers.get("user-agent"),
-      origin: request.headers.get("origin"),
-      referer: request.headers.get("referer"),
-    },
-  });
+  // Log request details (disabled to reduce log noise)
+  // console.log("[API] Config request received", {
+  //   timestamp: new Date().toISOString(),
+  //   headers: {
+  //     userAgent: request.headers.get("user-agent"),
+  //     origin: request.headers.get("origin"),
+  //     referer: request.headers.get("referer"),
+  //   },
+  // });
 
   try {
     // Time environment variable access
@@ -28,11 +28,11 @@ export async function GET(request: Request) {
     const apiKey = process.env.ELEVENLABS_API_KEY;
     const envDuration = Date.now() - envStartTime;
     
-    console.log("[API] Environment variables accessed", {
-      duration: `${envDuration}ms`,
-      hasAgentId: !!agentId,
-      hasApiKey: !!apiKey,
-    });
+    // console.log("[API] Environment variables accessed", {
+    //   duration: `${envDuration}ms`,
+    //   hasAgentId: !!agentId,
+    //   hasApiKey: !!apiKey,
+    // });
 
     if (!agentId) {
       const errorDuration = Date.now() - startTime;
@@ -66,11 +66,11 @@ export async function GET(request: Request) {
     // Add custom timing headers
     response.headers.set("X-Response-Time", `${totalDuration}ms`);
     
-    console.log("[API] Config response sent", {
-      totalDuration: `${totalDuration}ms`,
-      envDuration: `${envDuration}ms`,
-      timestamp: new Date().toISOString(),
-    });
+    // console.log("[API] Config response sent", {
+    //   totalDuration: `${totalDuration}ms`,
+    //   envDuration: `${envDuration}ms`,
+    //   timestamp: new Date().toISOString(),
+    // });
     
     return response;
   } catch (error) {

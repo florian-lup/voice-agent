@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Header } from "./header";
+import { Header } from "@/components/header";
 import { type Message } from "@/hooks/use-elevenlabs-official";
 import { StreamingText } from "@/components/streaming-text";
 import Image from "next/image";
 
-interface AndrewTateUIProps {
+interface VoiceCloneUIProps {
   // Connection state
   isConnected: boolean;
   isListening: boolean;
@@ -25,7 +25,7 @@ interface AndrewTateUIProps {
   buttonRef: React.RefObject<HTMLButtonElement | null>;
 }
 
-export function AndrewTateUI({
+export function VoiceCloneUI({
   isConnected,
   isListening,
   isUserSpeaking,
@@ -35,7 +35,7 @@ export function AndrewTateUI({
   onConnect,
   onDisconnect,
   buttonRef,
-}: AndrewTateUIProps) {
+}: VoiceCloneUIProps) {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -150,8 +150,8 @@ export function AndrewTateUI({
               {/* Avatar */}
               <div className="flex-shrink-0">
                 <Image
-                  src="/mr-mime-avatar.svg"
-                  alt="Mr. Mime Avatar"
+                  src="/voice-clone-avatar.svg"
+                  alt="Voice Clone Avatar"
                   width={120}
                   height={120}
                   priority
@@ -170,9 +170,9 @@ export function AndrewTateUI({
                   })()}
                 </div>
                 
-                {/* Mr. Mime text */}
+                {/* Voice Clone text */}
                 <div className="text-sm sm:text-lg md:text-xl lg:text-2xl font-semibold text-muted-foreground">
-                  Mr. Mime
+                  Voice Clone
                 </div>
               </div>
             </div>

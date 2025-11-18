@@ -1,5 +1,5 @@
-import { LandingPage } from "@/components/landing-page";
+import { VoiceChat } from "@/components/voice-chat";
 
 export default function HomePage() {
-  return <LandingPage />;
+  return <VoiceChat />;
 }

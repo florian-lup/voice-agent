@@ -1,37 +1,101 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
-import { FaInstagram, FaTiktok } from "react-icons/fa";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { AlertCircle, Volume2, Mic, Phone, Loader2, PhoneOff } from "lucide-react";
 
-export function Header() {
+interface HeaderProps {
+  isConnected: boolean;
+  isListening: boolean;
+  isSpeaking: boolean;
+  isConnecting: boolean;
+  elapsedSeconds: number;
+  onConnect: () => void;
+  onDisconnect: () => void;
+  buttonRef: React.RefObject<HTMLButtonElement | null>;
+}
+
+export function Header({ 
+  isConnected, 
+  isSpeaking, 
+  isConnecting, 
+  onConnect, 
+  onDisconnect, 
+  buttonRef 
+}: HeaderProps) {
+  // Format elapsed time as mm:ss
+
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 w-full py-4 px-6 bg-background/80 backdrop-blur-sm border-b border-border/50">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Image
-            src="/mr-mime-logo.svg"
-            alt="Mr. Mime Logo"
-            width={32}
-            height={32}
-            className="w-8 h-8"
-          />
-          <div className="flex items-center gap-4">
-            <FaInstagram className="w-5 h-5 text-foreground hover:text-primary transition-colors cursor-pointer" />
-            <FaTiktok className="w-5 h-5 text-foreground hover:text-primary transition-colors cursor-pointer" />
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="sm">
-            Login
-          </Button>
-          <Button size="sm">
-            Sign Up
-          </Button>
-        </div>
+    <div className="fixed top-0 left-0 right-0 z-50 w-full flex items-center justify-between p-4">
+      {/* Left side - Status Badge */}
+      <div className="flex items-center gap-2">
+        <Badge 
+          variant={(() => {
+            if (!isConnected) return "secondary";
+            return "outline"; // Use outline as base for custom colors
+          })()} 
+          className={`px-4 py-1 ${(() => {
+            if (!isConnected) return "";
+            if (isSpeaking) return "animate-pulse bg-green-400 text-white border-green-400";
+            return "animate-pulse bg-blue-400 text-white border-blue-400";
+          })()}`}
+        >
+          {(() => {
+            if (!isConnected) {
+              return (
+                <>
+                  <AlertCircle className="h-3 w-3 mr-1" />
+                  Disconnected
+                </>
+              );
+            } else if (isSpeaking) {
+              return (
+                <>
+                  <Volume2 className="h-3 w-3 mr-1" />
+                  Speaking
+                </>
+              );
+            } else {
+              return (
+                <>
+                  <Mic className="h-3 w-3 mr-1" />
+                  Listening
+                </>
+              );
+            }
+          })()}
+        </Badge>
       </div>
-    </header>
+
+      {/* Right side - Control Button */}
+      <div className="flex items-center">
+        {isConnected && (
+          <Button
+            onClick={onDisconnect}
+            variant="destructive"
+            size="sm"
+          >
+<PhoneOff/>
+          </Button>
+        )}
+
+        {!isConnected && (
+          <Button 
+            ref={buttonRef}
+            onClick={onConnect} 
+            variant="default" 
+            size="sm" 
+            disabled={isConnecting}
+          >
+{isConnecting ? (
+              <Loader2/>
+            ) : (
+              <Phone/>
+            )}
+          </Button>
+        )}
+      </div>
+    </div>
   );
 }
