@@ -14,7 +14,7 @@ A real-time voice conversation app powered by ElevenLabs AI agents. Talk natural
 1. **Clone and install:**
 
    ```bash
-   git clone <your-repo>
+   git clone https://github.com/florian-lup/voice-agent
    cd voice-agent
    pnpm install
    ```
