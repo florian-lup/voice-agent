@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 // Use Edge Runtime for faster cold starts
-export const runtime = 'edge';
+export const runtime = "edge";
 
 /**
  * GET /api/elevenlabs/config
@@ -10,7 +10,7 @@ export const runtime = 'edge';
  */
 export async function GET() {
   const startTime = Date.now();
-  
+
   // Log request details (disabled to reduce log noise)
   // console.log("[API] Config request received", {
   //   timestamp: new Date().toISOString(),
@@ -27,7 +27,7 @@ export async function GET() {
     const agentId = process.env.ELEVENLABS_AGENT_ID;
     const apiKey = process.env.ELEVENLABS_API_KEY;
     const envDuration = Date.now() - envStartTime;
-    
+
     // console.log("[API] Environment variables accessed", {
     //   duration: `${envDuration}ms`,
     //   hasAgentId: !!agentId,
@@ -39,11 +39,8 @@ export async function GET() {
       console.error("[API] Missing agent ID", {
         totalDuration: `${errorDuration}ms`,
       });
-      
-      return NextResponse.json(
-        { error: "ElevenLabs Agent ID not configured" },
-        { status: 500 }
-      );
+
+      return NextResponse.json({ error: "ElevenLabs Agent ID not configured" }, { status: 500 });
     }
 
     // Prepare response
@@ -51,27 +48,24 @@ export async function GET() {
       agentId,
       apiKey, // The SDK needs this for authentication
     };
-    
+
     const totalDuration = Date.now() - startTime;
-    
+
     // Create response with timing headers
     const response = NextResponse.json(responseData);
-    
+
     // Add server timing header for browser dev tools
-    response.headers.set(
-      "Server-Timing", 
-      `total;dur=${totalDuration}, env;dur=${envDuration}`
-    );
-    
+    response.headers.set("Server-Timing", `total;dur=${totalDuration}, env;dur=${envDuration}`);
+
     // Add custom timing headers
     response.headers.set("X-Response-Time", `${totalDuration}ms`);
-    
+
     // console.log("[API] Config response sent", {
     //   totalDuration: `${totalDuration}ms`,
     //   envDuration: `${envDuration}ms`,
     //   timestamp: new Date().toISOString(),
     // });
-    
+
     return response;
   } catch (error) {
     const errorDuration = Date.now() - startTime;
@@ -79,10 +73,7 @@ export async function GET() {
       error,
       totalDuration: `${errorDuration}ms`,
     });
-    
-    return NextResponse.json(
-      { error: "Failed to fetch configuration" },
-      { status: 500 }
-    );
+
+    return NextResponse.json({ error: "Failed to fetch configuration" }, { status: 500 });
   }
 }

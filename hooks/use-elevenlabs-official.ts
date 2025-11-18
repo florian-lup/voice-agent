@@ -41,7 +41,7 @@ export const useElevenLabsAPI = (options?: UseElevenLabsOptions) => {
         timestamp: new Date().toISOString(),
       });
       perfLogger.end("websocket_connection");
-      
+
       console.log("✅ Connected to ElevenLabs");
       setIsConnected(true);
       setIsListening(true);
@@ -100,7 +100,7 @@ export const useElevenLabsAPI = (options?: UseElevenLabsOptions) => {
         });
         perfLogger.end("time_to_first_message");
       }
-      
+
       console.log("📨 Message received:", message);
       console.log("📨 Message type:", message.type);
       console.log("📨 Message keys:", Object.keys(message));
@@ -144,7 +144,10 @@ export const useElevenLabsAPI = (options?: UseElevenLabsOptions) => {
 
       // Handle audio transcripts (assistant speaking)
       if (message.type === "audio" && message.audio?.transcript) {
-        console.log("✅ Creating assistant message from audio transcript:", message.audio.transcript);
+        console.log(
+          "✅ Creating assistant message from audio transcript:",
+          message.audio.transcript,
+        );
         const audioMessage: Message = {
           id: Date.now().toString(),
           role: "assistant",
@@ -161,7 +164,10 @@ export const useElevenLabsAPI = (options?: UseElevenLabsOptions) => {
 
       // Handle conversation update (which may contain transcript)
       if (message.type === "conversation_update" && message.conversation?.transcript) {
-        console.log("✅ Creating assistant message from conversation transcript:", message.conversation.transcript);
+        console.log(
+          "✅ Creating assistant message from conversation transcript:",
+          message.conversation.transcript,
+        );
         const conversationMessage: Message = {
           id: Date.now().toString(),
           role: "assistant",
@@ -221,25 +227,25 @@ export const useElevenLabsAPI = (options?: UseElevenLabsOptions) => {
       perfLogger.reset();
       perfLogger.logEnvironment();
       perfLogger.start("total_connection_time");
-      
+
       console.log("🔌 Fetching ElevenLabs configuration from API...");
-      
+
       // Time the API config fetch
       perfLogger.start("fetch_config", {
         endpoint: "/api/elevenlabs/config",
         method: "GET",
       });
-      
+
       const fetchStartTime = performance.now();
       const response = await fetch("/api/elevenlabs/config");
       const fetchEndTime = performance.now();
-      
+
       perfLogger.end("fetch_config", {
         status: response.status,
         ok: response.ok,
       });
       perfLogger.logNetworkTiming("/api/elevenlabs/config", fetchStartTime, fetchEndTime);
-      
+
       if (!response.ok) {
         perfLogger.mark("config_fetch_failed", { status: response.status });
         const error = await response.json();
@@ -253,7 +259,7 @@ export const useElevenLabsAPI = (options?: UseElevenLabsOptions) => {
         hasAgentId: !!config.agentId,
         hasApiKey: !!config.apiKey,
       });
-      
+
       if (!config.agentId) {
         perfLogger.mark("missing_agent_id");
         throw new Error("Agent ID not configured");
@@ -269,42 +275,44 @@ export const useElevenLabsAPI = (options?: UseElevenLabsOptions) => {
       perfLogger.start("elevenlabs_session_creation", {
         agentId: config.agentId.substring(0, 8) + "...", // Log partial ID for debugging
       });
-      
+
       // Reset first message flag for new connection
       firstMessageReceivedRef.current = false;
-      
+
       // Start WebSocket connection timing
       perfLogger.start("websocket_connection");
       perfLogger.start("time_to_first_message");
-      
+
       // Start session with the agent
       const sessionId = await conversation.startSession(config);
-      
+
       perfLogger.end("elevenlabs_session_creation", {
         sessionId: sessionId?.substring(0, 8) + "...", // Log partial session ID
       });
 
       setConversationId(sessionId);
       console.log("💬 Conversation started with session ID:", sessionId);
-      
+
       // End total timing and show summary
       perfLogger.end("total_connection_time");
       const summary = perfLogger.getSummary();
-      
+
       // Perform detailed performance analysis
-      const timings = summary.operations.reduce((acc, op) => {
-        acc[op.name] = parseFloat(op.duration);
-        return acc;
-      }, {} as Record<string, number>);
+      const timings = summary.operations.reduce(
+        (acc, op) => {
+          acc[op.name] = parseFloat(op.duration);
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
       logPerformanceSummary(timings);
-      
     } catch (error) {
       perfLogger.mark("connection_error", {
         error: error instanceof Error ? error.message : "Unknown error",
       });
       perfLogger.end("total_connection_time");
       perfLogger.getSummary();
-      
+
       console.error("Failed to connect:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Failed to connect to ElevenLabs";

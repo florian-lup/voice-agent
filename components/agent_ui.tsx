@@ -13,14 +13,14 @@ interface VoiceAgentUIProps {
   isUserSpeaking: boolean;
   isConnecting: boolean;
   isSpeaking: boolean;
-  
+
   // Data
   messages: Message[];
-  
+
   // Handlers
   onConnect: () => void;
   onDisconnect: () => void;
-  
+
   // Button ref for optimization
   buttonRef: React.RefObject<HTMLButtonElement | null>;
 }
@@ -69,7 +69,6 @@ export function VoiceAgentUI({
     let animationFrameId: number;
     let lastContentHeight = container.scrollHeight;
 
-
     // Check for content height changes (during streaming)
     const checkContentChanges = () => {
       const currentHeight = container.scrollHeight;
@@ -102,7 +101,6 @@ export function VoiceAgentUI({
     setIsStreamingActive(isSpeaking);
   }, [isSpeaking]);
 
-
   // Timer effect for tracking connection duration
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -124,12 +122,10 @@ export function VoiceAgentUI({
     };
   }, [isConnected]);
 
-
-
   return (
     <div className="min-h-dvh h-dvh flex flex-col overflow-hidden">
       {/* Header */}
-      <Header 
+      <Header
         isConnected={isConnected}
         isListening={isListening}
         isSpeaking={isSpeaking}
@@ -139,7 +135,7 @@ export function VoiceAgentUI({
         onDisconnect={onDisconnect}
         buttonRef={buttonRef}
       />
-      
+
       {/* Main Content */}
       <div className="flex-1 flex flex-col p-4 pt-20 overflow-hidden">
         {/* Voice Visualization Area - At the top */}
@@ -158,7 +154,7 @@ export function VoiceAgentUI({
                   className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 xl:w-30 xl:h-30 rounded-lg"
                 />
               </div>
-              
+
               {/* Counter and name */}
               <div className="flex flex-col justify-center">
                 {/* Counter */}
@@ -166,10 +162,10 @@ export function VoiceAgentUI({
                   {(() => {
                     const mins = Math.floor(elapsedSeconds / 60);
                     const secs = elapsedSeconds % 60;
-                    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
                   })()}
                 </div>
-                
+
                 {/* Voice Agent text */}
                 <div className="text-sm sm:text-lg md:text-xl lg:text-2xl font-semibold text-muted-foreground">
                   Voice Agent
@@ -183,33 +179,70 @@ export function VoiceAgentUI({
                 {[...Array(12)].map((_, i) => (
                   <div
                     key={i}
-                    className={`w-1 sm:w-1.5 md:w-2 rounded-full transition-all duration-300 ${
-                      (() => {
-                        if (!isConnected) {
-                          // Disconnected - minimal static bars
-                          return "h-2 bg-gray-400";
-                        } else if (isUserSpeaking) {
-                          // User speaking - blue wave pattern
-                          const heights = ["h-4", "h-6", "h-8", "h-10", "h-12", "h-12", "h-12", "h-10", "h-8", "h-6", "h-4", "h-3"];
-                          return `${heights[i]} bg-blue-400 animate-pulse`;
-                        } else if (isSpeaking) {
-                          // AI speaking - green wave pattern
-                          const heights = ["h-3", "h-5", "h-7", "h-9", "h-12", "h-14", "h-14", "h-12", "h-9", "h-7", "h-5", "h-3"];
-                          return `${heights[i]} bg-green-400 animate-pulse`;
-                        } else {
-                          // Connected but idle - gentle wave pattern
-                          const heights = ["h-2", "h-3", "h-5", "h-6", "h-8", "h-8", "h-8", "h-6", "h-5", "h-3", "h-2", "h-2"];
-                          return `${heights[i]} bg-primary/50 animate-pulse`;
-                        }
-                      })()
-                    }`}
+                    className={`w-1 sm:w-1.5 md:w-2 rounded-full transition-all duration-300 ${(() => {
+                      if (!isConnected) {
+                        // Disconnected - minimal static bars
+                        return "h-2 bg-gray-400";
+                      } else if (isUserSpeaking) {
+                        // User speaking - blue wave pattern
+                        const heights = [
+                          "h-4",
+                          "h-6",
+                          "h-8",
+                          "h-10",
+                          "h-12",
+                          "h-12",
+                          "h-12",
+                          "h-10",
+                          "h-8",
+                          "h-6",
+                          "h-4",
+                          "h-3",
+                        ];
+                        return `${heights[i]} bg-blue-400 animate-pulse`;
+                      } else if (isSpeaking) {
+                        // AI speaking - green wave pattern
+                        const heights = [
+                          "h-3",
+                          "h-5",
+                          "h-7",
+                          "h-9",
+                          "h-12",
+                          "h-14",
+                          "h-14",
+                          "h-12",
+                          "h-9",
+                          "h-7",
+                          "h-5",
+                          "h-3",
+                        ];
+                        return `${heights[i]} bg-green-400 animate-pulse`;
+                      } else {
+                        // Connected but idle - gentle wave pattern
+                        const heights = [
+                          "h-2",
+                          "h-3",
+                          "h-5",
+                          "h-6",
+                          "h-8",
+                          "h-8",
+                          "h-8",
+                          "h-6",
+                          "h-5",
+                          "h-3",
+                          "h-2",
+                          "h-2",
+                        ];
+                        return `${heights[i]} bg-primary/50 animate-pulse`;
+                      }
+                    })()}`}
                     style={{
                       animationDelay: `${i * 100}ms`,
                       animationDuration: (() => {
                         if (!isConnected) return "3s";
                         if (isUserSpeaking || isSpeaking) return "0.8s";
                         return "2s";
-                      })()
+                      })(),
                     }}
                   ></div>
                 ))}
@@ -217,24 +250,22 @@ export function VoiceAgentUI({
             </div>
 
             {/* Animated border overlay */}
-            <div 
-              className={`absolute inset-0 rounded-xl border-4 transition-all duration-300 ${
-                (() => {
-                  if (!isConnected) {
-                    // Always show gray border when disconnected
-                    return "border-gray-700 animate-pulse";
-                  } else if (isUserSpeaking) {
-                    // User actively speaking - blue animated border
-                    return "border-blue-400 animate-pulse";
-                  } else if (isSpeaking) {
-                    // Speaking state - green animated border (AI speaking)
-                    return "border-green-400 animate-pulse";
-                  } else {
-                    // Default state (idle/just listening) - subtle gray border
-                    return "border-gray-700 animate-pulse";
-                  }
-                })()
-              }`}
+            <div
+              className={`absolute inset-0 rounded-xl border-4 transition-all duration-300 ${(() => {
+                if (!isConnected) {
+                  // Always show gray border when disconnected
+                  return "border-gray-700 animate-pulse";
+                } else if (isUserSpeaking) {
+                  // User actively speaking - blue animated border
+                  return "border-blue-400 animate-pulse";
+                } else if (isSpeaking) {
+                  // Speaking state - green animated border (AI speaking)
+                  return "border-green-400 animate-pulse";
+                } else {
+                  // Default state (idle/just listening) - subtle gray border
+                  return "border-gray-700 animate-pulse";
+                }
+              })()}`}
               style={{
                 animationDuration: (() => {
                   if (!isConnected) {
@@ -246,7 +277,7 @@ export function VoiceAgentUI({
                   } else {
                     return "3s";
                   }
-                })()
+                })(),
               }}
             ></div>
           </div>
@@ -254,10 +285,7 @@ export function VoiceAgentUI({
 
         {/* Messages Section */}
         <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col min-h-0">
-          <div 
-            ref={messagesContainerRef}
-            className="flex-1 overflow-y-auto p-2 space-y-4"
-          >
+          <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-2 space-y-4">
             {messages.length > 0 && (
               <>
                 {messages.map((message) => (
@@ -285,7 +313,6 @@ export function VoiceAgentUI({
           </div>
         </div>
       </div>
-
     </div>
   );
 }

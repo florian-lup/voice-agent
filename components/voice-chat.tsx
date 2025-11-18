@@ -10,7 +10,7 @@ export function VoiceChat() {
   const [isListening, setIsListening] = useState(false);
   const [isUserSpeaking, setIsUserSpeaking] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
-  
+
   const buttonRef = useRef<HTMLButtonElement>(null);
   const { preWarmConnection } = useConnectionOptimizer({
     preWarmOnHover: true,
@@ -46,7 +46,7 @@ export function VoiceChat() {
       perfLogger.mark("pre_warming_start", {
         timestamp: new Date().toISOString(),
       });
-      
+
       try {
         // Pre-fetch config to warm up the serverless function
         const startTime = performance.now();
@@ -55,11 +55,11 @@ export function VoiceChat() {
           priority: "high",
         } as RequestInit);
         const endTime = performance.now();
-        
+
         if (response.ok) {
           const warmUpTime = endTime - startTime;
           // console.log(`✅ API route pre-warmed in ${warmUpTime.toFixed(2)}ms`);
-          
+
           // If cold start detected (>500ms), warm it again
           if (warmUpTime > 500) {
             // console.log("🔄 Cold start detected, warming again...");
@@ -71,26 +71,26 @@ export function VoiceChat() {
       } catch {
         // console.log("Pre-warm failed, will retry on connect");
       }
-      
+
       perfLogger.mark("pre_warming_end", {
         timestamp: new Date().toISOString(),
       });
     };
-    
+
     // Start pre-warming immediately
     preWarm();
-    
+
     // Also pre-warm on visibility change (when tab becomes active)
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === "visible") {
         fetch("/api/elevenlabs/config").catch(() => {});
       }
     };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
@@ -127,7 +127,7 @@ export function VoiceChat() {
       timestamp: new Date().toISOString(),
       isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent),
     });
-    
+
     setIsConnecting(true);
     try {
       await connect();
@@ -143,7 +143,7 @@ export function VoiceChat() {
   };
 
   // console.log("🔍 VoiceChat passing messages to VoiceAgentUI:", messages);
-  
+
   return (
     <VoiceAgentUI
       isConnected={isConnected}

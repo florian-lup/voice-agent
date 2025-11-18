@@ -12,13 +12,13 @@ interface StreamingTextProps {
   as?: React.ElementType; // Allow different HTML elements
 }
 
-export function StreamingText({ 
-  text, 
-  speed = 30, 
+export function StreamingText({
+  text,
+  speed = 30,
   onComplete,
   onUpdate,
   className = "",
-  as: Element = "span"
+  as: Element = "span",
 }: StreamingTextProps) {
   const { displayedText } = useStreamingText({
     text,

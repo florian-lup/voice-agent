@@ -25,10 +25,10 @@ class PerformanceLogger {
       startTime,
       metadata,
     };
-    
+
     this.timings.set(name, entry);
     this.sequence.push(entry);
-    
+
     console.log(`⏱️ [START] ${name}`, {
       timestamp: new Date().toISOString(),
       ...metadata,
@@ -48,7 +48,7 @@ class PerformanceLogger {
     const endTime = performance.now();
     entry.endTime = endTime;
     entry.duration = endTime - entry.startTime;
-    
+
     if (metadata) {
       entry.metadata = { ...entry.metadata, ...metadata };
     }
@@ -83,7 +83,7 @@ class PerformanceLogger {
    * Get all timings
    */
   getTimings(): TimingEntry[] {
-    return this.sequence.filter(entry => entry.duration !== undefined);
+    return this.sequence.filter((entry) => entry.duration !== undefined);
   }
 
   /**
@@ -92,19 +92,19 @@ class PerformanceLogger {
   getSummary() {
     const completed = this.getTimings();
     const total = completed.reduce((sum, entry) => sum + (entry.duration || 0), 0);
-    
+
     const summary = {
       totalDuration: `${total.toFixed(2)}ms`,
-      operations: completed.map(entry => ({
+      operations: completed.map((entry) => ({
         name: entry.name,
         duration: `${entry.duration?.toFixed(2)}ms`,
-        percentage: `${((entry.duration || 0) / total * 100).toFixed(1)}%`,
+        percentage: `${(((entry.duration || 0) / total) * 100).toFixed(1)}%`,
       })),
     };
 
     console.table(summary.operations);
     console.log(`📊 TOTAL TIME: ${summary.totalDuration}`);
-    
+
     return summary;
   }
 
@@ -114,7 +114,7 @@ class PerformanceLogger {
   reset() {
     this.timings.clear();
     this.sequence = [];
-    console.log('🔄 Performance logger reset');
+    console.log("🔄 Performance logger reset");
   }
 
   /**
@@ -128,18 +128,19 @@ class PerformanceLogger {
     });
 
     // Try to get detailed timing from Performance API
-    if (typeof window !== 'undefined' && window.performance) {
-      const entries = performance.getEntriesByType('resource');
-      const entry = entries.find(e => e.name.includes(url));
-      
-      if (entry && 'domainLookupStart' in entry) {
+    if (typeof window !== "undefined" && window.performance) {
+      const entries = performance.getEntriesByType("resource");
+      const entry = entries.find((e) => e.name.includes(url));
+
+      if (entry && "domainLookupStart" in entry) {
         const resourceTiming = entry as PerformanceResourceTiming;
         console.log(`🌐 [NETWORK DETAILS] ${url}`, {
           dns: `${(resourceTiming.domainLookupEnd - resourceTiming.domainLookupStart).toFixed(2)}ms`,
           tcp: `${(resourceTiming.connectEnd - resourceTiming.connectStart).toFixed(2)}ms`,
-          ssl: resourceTiming.secureConnectionStart > 0 
-            ? `${(resourceTiming.connectEnd - resourceTiming.secureConnectionStart).toFixed(2)}ms`
-            : 'N/A',
+          ssl:
+            resourceTiming.secureConnectionStart > 0
+              ? `${(resourceTiming.connectEnd - resourceTiming.secureConnectionStart).toFixed(2)}ms`
+              : "N/A",
           ttfb: `${(resourceTiming.responseStart - resourceTiming.requestStart).toFixed(2)}ms`,
           download: `${(resourceTiming.responseEnd - resourceTiming.responseStart).toFixed(2)}ms`,
           total: `${resourceTiming.duration.toFixed(2)}ms`,
@@ -152,15 +153,15 @@ class PerformanceLogger {
    * Log device and network information
    */
   logEnvironment() {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
 
     const info: Record<string, unknown> = {
       userAgent: navigator.userAgent,
       platform: navigator.platform,
       screenResolution: `${window.screen.width}x${window.screen.height}`,
       viewportSize: `${window.innerWidth}x${window.innerHeight}`,
-      deviceMemory: (navigator as Navigator & { deviceMemory?: number }).deviceMemory || 'N/A',
-      hardwareConcurrency: navigator.hardwareConcurrency || 'N/A',
+      deviceMemory: (navigator as Navigator & { deviceMemory?: number }).deviceMemory || "N/A",
+      hardwareConcurrency: navigator.hardwareConcurrency || "N/A",
       connection: (() => {
         const navWithConnection = navigator as Navigator & {
           connection?: {
@@ -169,15 +170,17 @@ class PerformanceLogger {
             rtt?: number;
           };
         };
-        return navWithConnection.connection ? {
-          effectiveType: navWithConnection.connection.effectiveType,
-          downlink: navWithConnection.connection.downlink,
-          rtt: navWithConnection.connection.rtt,
-        } : 'N/A';
+        return navWithConnection.connection
+          ? {
+              effectiveType: navWithConnection.connection.effectiveType,
+              downlink: navWithConnection.connection.downlink,
+              rtt: navWithConnection.connection.rtt,
+            }
+          : "N/A";
       })(),
     };
 
-    console.log('📱 [ENVIRONMENT]', info);
+    console.log("📱 [ENVIRONMENT]", info);
     return info;
   }
 }

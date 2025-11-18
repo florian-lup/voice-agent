@@ -16,13 +16,13 @@ interface HeaderProps {
   buttonRef: React.RefObject<HTMLButtonElement | null>;
 }
 
-export function Header({ 
-  isConnected, 
-  isSpeaking, 
-  isConnecting, 
-  onConnect, 
-  onDisconnect, 
-  buttonRef 
+export function Header({
+  isConnected,
+  isSpeaking,
+  isConnecting,
+  onConnect,
+  onDisconnect,
+  buttonRef,
 }: HeaderProps) {
   // Format elapsed time as mm:ss
 
@@ -30,11 +30,11 @@ export function Header({
     <div className="fixed top-0 left-0 right-0 z-50 w-full flex items-center justify-between p-4">
       {/* Left side - Status Badge */}
       <div className="flex items-center gap-2">
-        <Badge 
+        <Badge
           variant={(() => {
             if (!isConnected) return "secondary";
             return "outline"; // Use outline as base for custom colors
-          })()} 
+          })()}
           className={`px-4 py-1 ${(() => {
             if (!isConnected) return "";
             if (isSpeaking) return "animate-pulse bg-green-400 text-white border-green-400";
@@ -71,28 +71,20 @@ export function Header({
       {/* Right side - Control Button */}
       <div className="flex items-center">
         {isConnected && (
-          <Button
-            onClick={onDisconnect}
-            variant="destructive"
-            size="sm"
-          >
-<PhoneOff/>
+          <Button onClick={onDisconnect} variant="destructive" size="sm">
+            <PhoneOff />
           </Button>
         )}
 
         {!isConnected && (
-          <Button 
+          <Button
             ref={buttonRef}
-            onClick={onConnect} 
-            variant="default" 
-            size="sm" 
+            onClick={onConnect}
+            variant="default"
+            size="sm"
             disabled={isConnecting}
           >
-{isConnecting ? (
-              <Loader2/>
-            ) : (
-              <Phone/>
-            )}
+            {isConnecting ? <Loader2 /> : <Phone />}
           </Button>
         )}
       </div>

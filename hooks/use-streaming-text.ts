@@ -9,9 +9,9 @@ interface UseStreamingTextOptions {
   onUpdate?: () => void;
 }
 
-export function useStreamingText({ 
-  text, 
-  speed = 30, 
+export function useStreamingText({
+  text,
+  speed = 30,
   onComplete,
   onUpdate,
 }: UseStreamingTextOptions) {
@@ -40,20 +40,20 @@ export function useStreamingText({
     intervalRef.current = setInterval(() => {
       setCurrentIndex((prevIndex) => {
         const nextIndex = prevIndex + 1;
-        
+
         if (nextIndex >= text.length) {
           // Clear interval when complete
           if (intervalRef.current) {
             clearInterval(intervalRef.current);
             intervalRef.current = null;
           }
-          
+
           // Mark as complete
           setIsComplete(true);
-          
+
           return text.length;
         }
-        
+
         return nextIndex;
       });
     }, speed);
@@ -84,7 +84,7 @@ export function useStreamingText({
       const timeoutId = setTimeout(() => {
         onComplete();
       }, 0);
-      
+
       return () => clearTimeout(timeoutId);
     }
   }, [isComplete, onComplete]);

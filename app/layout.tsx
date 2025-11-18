@@ -33,13 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link
-          rel="preload"
-          href="/fonts/Mokoto.ttf"
-          as="font"
-          type="font/ttf"
-          crossOrigin=""
-        />
+        <link rel="preload" href="/fonts/Mokoto.ttf" as="font" type="font/ttf" crossOrigin="" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider
