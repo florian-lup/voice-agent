@@ -6,7 +6,7 @@ import { type Message } from "@/hooks/use-elevenlabs-official";
 import { StreamingText } from "@/components/streaming-text";
 import Image from "next/image";
 
-interface VoiceCloneUIProps {
+interface VoiceAgentUIProps {
   // Connection state
   isConnected: boolean;
   isListening: boolean;
@@ -25,7 +25,7 @@ interface VoiceCloneUIProps {
   buttonRef: React.RefObject<HTMLButtonElement | null>;
 }
 
-export function VoiceCloneUI({
+export function VoiceAgentUI({
   isConnected,
   isListening,
   isUserSpeaking,
@@ -35,7 +35,7 @@ export function VoiceCloneUI({
   onConnect,
   onDisconnect,
   buttonRef,
-}: VoiceCloneUIProps) {
+}: VoiceAgentUIProps) {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -150,7 +150,7 @@ export function VoiceCloneUI({
               {/* Avatar */}
               <div className="flex-shrink-0">
                 <Image
-                  src="/voice-clone-avatar.svg"
+                  src="/voice-agent-avatar.svg"
                   alt="Voice Clone Avatar"
                   width={120}
                   height={120}

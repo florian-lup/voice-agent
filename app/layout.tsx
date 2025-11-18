@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Voice Clone",
+  title: "AI Voice Agent",
 };
 
 export const viewport = {

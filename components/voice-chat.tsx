@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useElevenLabsAPI } from "@/hooks/use-elevenlabs-official";
 import { perfLogger } from "@/lib/performance-logger";
 import { useConnectionOptimizer, usePreWarmTriggers } from "@/hooks/use-connection-optimizer";
-import { VoiceCloneUI } from "@/components/voice-clone";
+import { VoiceAgentUI } from "@/components/voice-agent";
 
 export function VoiceChat() {
   const [isListening, setIsListening] = useState(false);
@@ -142,10 +142,10 @@ export function VoiceChat() {
     setIsListening(false);
   };
 
-  // console.log("🔍 VoiceChat passing messages to VoiceCloneUI:", messages);
+  // console.log("🔍 VoiceChat passing messages to VoiceAgentUI:", messages);
   
   return (
-    <VoiceCloneUI
+    <VoiceAgentUI
       isConnected={isConnected}
       isListening={isListening}
       isUserSpeaking={isUserSpeaking}

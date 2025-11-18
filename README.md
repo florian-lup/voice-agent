@@ -1,65 +1,43 @@
-## Next.js Starter Kit
+# AI Voice Agent
 
-Production-ready starter for building modern apps with Next.js 15, React 19, and Tailwind CSS v4. Includes a polished UI kit (Radix + shadcn-style components), dark/system theming, strong defaults for performance and security, and one-click deploy to Vercel.
+A real-time voice conversation app powered by ElevenLabs AI agents. Talk naturally with AI using voice cloning and speech recognition.
 
-### Features
+## Features
 
-- **Next.js 15 (App Router)**: File-based routing, React Server Components
-- **React 19** with **Turbopack** for dev speed
-- **Tailwind CSS v4** (no config file) with CSS variables and animations
-- **Radix UI + shadcn-style components** in `components/ui`
-- **Dark/System theme** via `next-themes` and a built-in `ThemeToggle`
-- **Security headers + CSP** (auto-adjusts on Vercel)
-- **Vercel Analytics** gated for production on Vercel
-- **TypeScript**, strict mode, path aliases (`@/*`)
-- **Prettier + ESLint** (Next + Prettier config)
+- **Real-time voice conversations** with ElevenLabs AI agents
+- **Voice activity detection** and input volume monitoring
+- **Performance optimized** with API pre-warming and connection optimization
+- **Modern UI** built with Next.js, React, and Tailwind CSS
 
-### Stack
+## Getting Started
 
-- **Framework**: Next.js 15 (`next`), React 19
-- **Styling**: Tailwind CSS v4 (`@tailwindcss/postcss`), `tw-animate-css`
-- **UI**: Radix primitives, `lucide-react`, components in `components/ui`
-- **Theming**: `next-themes`
-- **Build/Dev**: Turbopack (`next dev --turbopack`)
+1. **Clone and install:**
 
-### Quickstart
+   ```bash
+   git clone <your-repo>
+   cd voice-agent
+   pnpm install
+   ```
 
-```bash
-# Install deps (recommended)
-pnpm install
+2. **Set up environment variables:**
 
-# Start dev server
-pnpm dev
+   ```bash
+   # .env.local
+   ELEVENLABS_API_KEY=your_api_key
+   ELEVENLABS_AGENT_ID=your_agent_id
+   ```
 
-# Type-check, lint, format
-pnpm lint
-pnpm format
-pnpm format:check
+3. **Run the development server:**
 
-# Build & run production
-pnpm build && pnpm start
-```
+   ```bash
+   pnpm dev
+   ```
 
-Requirements: Node 18.18+ (Node 20+ recommended) and pnpm.
+4. **Open [http://localhost:3000](http://localhost:3000)** and start talking!
 
-### Analytics
+## Tech Stack
 
-`@vercel/analytics` only loads in production on Vercel. No local env vars required.
-
-### Scripts
-
-- **dev**: `next dev --turbopack`
-- **build**: `next build`
-- **start**: `next start`
-- **lint**: `next lint`
-- **format**: `prettier --write .`
-- **format:check**: `prettier --check .`
-
-### Deployment
-
-- One-click deploy to Vercel: the app ships with headers and CSP optimized for Vercel.
-- You can also self-host: run `pnpm build && pnpm start` behind your own reverse proxy.
-
-### License
-
-MIT — see `LICENSE`.
+- **Framework:** Next.js 15 with App Router
+- **Voice API:** ElevenLabs React SDK
+- **UI:** Radix UI + Tailwind CSS
+- **Language:** TypeScript
